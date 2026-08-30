@@ -1,7 +1,8 @@
 ---
-layout: post
 title: "어제 배운 Git 정리"
 date: 2026-08-28
+categories: [Git, GitHub]
+tags: [git, github]
 ---
 
 ## 오늘 배운 것
