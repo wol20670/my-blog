@@ -208,6 +208,8 @@ exclude:
   - purgecss.js
   - "*.config.js"
   - "package*.json"
+  - markdown-template.md
+  - markdown-test.md
 
 jekyll-archives:
   enabled: [categories, tags]
