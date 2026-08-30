@@ -2,8 +2,10 @@
 title: ""
 date: 2026-00-00 00:00:00 +0900
 description: ""
-categories: []
-tags: []
+categories: [Git, Collaboration, JavaScript, Fundamentals, CI-CD]
+tags: [merge, conflict, branch, troubleshooting,
+    scope, hoisting, tdz, var, let, const,
+    github-pages, github-actions, jekyll, chirpy, troubleshooting]
 ---
 
 ## 문제 상황
