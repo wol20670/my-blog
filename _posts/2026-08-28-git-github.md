@@ -1,6 +1,7 @@
 ---
-title: "어제 배운 Git 정리"
-date: 2026-08-28
+title: "Git add, commit, push 차이 정리"
+date: 2026-08-28 00:00:00 +0900
+description: Git의 add, commit, push가 각각 어떤 역할을 하는지 학습한 내용을 정리합니다.
 categories: [Git, GitHub]
 tags: [git, github]
 ---
