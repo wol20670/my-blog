@@ -4,6 +4,7 @@ date: 2026-08-31 09:00:00 +0900
 description: "이번 주에 배운 브랜치·push·pull·merge·되돌리기 개념으로 merge conflict 경험과 그 횟수를 줄이는 방법을 정리합니다."
 categories: [Git, GitHub]
 tags: [git, github, branch, merge, conflict]
+mermaid: true
 ---
 
 ## 들어가며

@@ -1,2 +1,7 @@
-markdown-test.md
-.claude
+# Claude 로컬 설정 (skills는 버전관리 대상이라 예외 처리)
+/.claude/*
+!/.claude/skills/
+!/.claude/skills/**
+
+# 로컬 테스트용 마크다운
+/markdown-test.md
