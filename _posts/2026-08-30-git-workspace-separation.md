@@ -2,8 +2,8 @@
 title: "Git Merge Conflict를 피하기 위한 작업 영역 분리"
 date: 2026-08-30 15:00:00 +0900
 description: "Conflict가 나는 원인을 조사하고 횟수를 줄이기 위한 방법을 모색합니다."
-categories: [Git, GitHub]
-tags: [merge, conflict, branch]
+categories: [Exploration]
+tags: [git, merge, conflict, branch]
 ---
 
 # Git Conflict를 줄이기 위해 줄 번호를 나누면 될까?

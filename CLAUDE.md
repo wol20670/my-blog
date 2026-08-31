@@ -290,3 +290,47 @@ mermaid: true
 - [ ] Front Matter가 올바르게 작성되어 있는가? (layout, title, date)
 - [ ] Mermaid 사용 시 `mermaid: true`가 Front Matter에 있는가?
 - [ ] 이미지 경로가 `{{ site.baseurl }}/assets/...` 형식인가?
+
+---
+
+## 8. Category/Tag 정책 및 Exploration 글 (추가 규정)
+
+이 섹션은 위 원본 규칙에 대한 **최소 추가/보정 규정**이다. 아래에서 언급하지 않는 내용은 위 섹션들이
+그대로 유효하다.
+
+### 8.1 이 블로그의 두 글 성격
+
+이 블로그에는 성격이 다른 두 종류의 글이 있다.
+
+| 성격 | 의미 |
+|------|------|
+| **Troubleshooting** | 개발/학습 중 실제로 겪은 문제를 해결해나가는 과정을 기록하는 글. 2장 STAR 구조가 이 성격의 글에 해당한다. |
+| **Exploration** | 새로운 기술/개념을 배우다 흥미로운 지점을 발견하고, 단순 정리에서 끝나지 않고 생각을 더 발전시키는 글. |
+
+### 8.2 categories / tags 값 (5.2 Front Matter 표 보정)
+
+- `categories`는 **정확히 1개**, `Troubleshooting` 또는 `Exploration` 중 하나만 쓴다.
+  `[Git, GitHub]`처럼 기술명을 category로 쓰지 않는다 — **category는 글의 성격/목적**을 나타낸다.
+- `tags`는 **기술/개념/세부 주제**(`git`, `merge`, `conflict` 등)를 나타낸다. `troubleshooting`,
+  `exploration`처럼 category와 의미가 겹치는 tag는 넣지 않는다.
+- tag는 기존 `_posts/`에서 쓰이는 표기(소문자, 하이픈 등)를 우선 재사용하고, 실제로 어떤 tag를
+  붙일지는 항상 **대상 글 본문 내용**에 근거해서 판단한다(다른 글에 있다는 이유만으로 추가하지 않는다).
+  새 tag는 실제로 필요한 글을 쓸 때만 추가하고, 미리 대량으로 만들지 않는다.
+- category 값은 post permalink(`/posts/:title/`)에 관여하지 않으므로, category를 바꿔도 게시글
+  URL은 바뀌지 않는다.
+
+### 8.3 Exploration 글의 권장 구조
+
+Troubleshooting 글은 2장의 STAR 구조를 그대로 따른다. **Exploration 글은 아래 구조를 참고한다**
+(2장의 "Action 60% 이상", "Result 정량 지표 필수" 조건은 Troubleshooting에만 해당하며 Exploration에는
+적용하지 않는다).
+
+```
+새로운 개념 → 흥미로운 지점 → 핵심 원리 → 기존 지식과 연결 → 활용/발전 방향
+```
+
+- "왜 이렇게 설계되었는가", "기존에 알던 것과 어떻게 연결되는가", "실제 개발에서 어떻게 활용될 수
+  있는가", "더 탐구한다면 어떤 방향이 있는가"가 드러나야 한다.
+- 이 구조를 모든 Exploration 글에 기계적으로 강제하지는 않는다.
+- 3.2절 "더 학습하면 좋은 개념" 섹션은 필수가 아니라 **권장**이며, 특히 이 구조의 "활용/발전 방향"
+  단계와 자연스럽게 이어진다.

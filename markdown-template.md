@@ -1,11 +1,17 @@
+<!--
+  이 파일은 Front Matter 형식 + categories/tags 작성 예시를 보여주는 참고용 템플릿이다.
+  본문 구조(섹션 구성)의 기준은 이 파일이 아니라 CLAUDE.md다:
+    - Troubleshooting 글 → CLAUDE.md 2장(STAR) 구조. 아래 본문 골격이 그 예시다.
+    - Exploration 글 → CLAUDE.md 8.3절 구조(새로운 개념 → 흥미로운 지점 → 핵심 원리 →
+      기존 지식과 연결 → 활용/발전 방향). 별도 템플릿 파일을 두지 않고 CLAUDE.md 텍스트를 따른다.
+-->
 ---
 title: ""
 date: 2026-00-00 00:00:00 +0900
 description: ""
-categories: [Git, Collaboration, JavaScript, Fundamentals, CI-CD]
-tags: [merge, conflict, branch, troubleshooting,
-    scope, hoisting, tdz, var, let, const,
-    github-pages, github-actions, jekyll, chirpy, troubleshooting]
+categories: [Troubleshooting]   # 또는 [Exploration] — 정확히 1개만 (CLAUDE.md 8.2절)
+tags: [git, merge, conflict]   # 이 글의 실제 내용에 근거해서 채운다. category와 겹치는
+                                # troubleshooting/exploration은 tag로 넣지 않는다.
 ---
 
 ## 문제 상황
