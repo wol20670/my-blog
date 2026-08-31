@@ -5,7 +5,7 @@ description: 게시글의 front matter, 파일명/날짜, tags를 점검하고 �
 
 # 게시글 메타데이터 점검
 
-`_posts/`의 글 하나를 대상으로 "게시 직전 점검"만 한다. 본문 문체, 제목 문구, heading 구조, categories 분류 체계는 절대 건드리지 않는다. 전역 작성 규칙은 `CLAUDE.md`를 참고하되 여기 다시 옮겨 적지 않는다.
+`_posts/`의 글 하나를 대상으로 "게시 직전 점검"만 한다. 본문 문체, 제목 문구, heading 구조, categories 분류 체계는 절대 건드리지 않는다. 전역 작성 규칙은 `CLAUDE.md`를, category/tag taxonomy 규칙은 `BLOG_POLICY.md`를 참고하되 여기 다시 옮겨 적지 않는다.
 
 ## 1. 대상 파일 정하기
 
@@ -20,7 +20,7 @@ description: 게시글의 front matter, 파일명/날짜, tags를 점검하고 �
 - `title`: 콜론 등 특수문자 있으면 따옴표로 감싸도록 정리. 문구 자체는 바꾸지 않는다.
 - `date`: `YYYY-MM-DD HH:MM:SS +0900` 형식과 `+0900` 확인. 미래 날짜면 경고만 하고 임의로 안 바꾼다.
 - `description`: 있으면 형식만 정리(보존). 없다고 새로 지어내지 않는다.
-- `categories`: 존재/형식만 확인. 비어 있거나 이상해도 경고만 하고 새로 만들거나 바꾸지 않는다. "categories는 항상 몇 개"류의 규칙을 만들지 않는다. 다만 허용값은 `Troubleshooting` 또는 `Exploration` 단일값으로 정해져 있으므로(`CLAUDE.md` 8.2절), 그 외의 값(예: `[Git, GitHub]`, 복수 값, 다른 문자열, 대소문자가 다른 표기)이면 "현재 taxonomy와 맞지 않음"으로 경고만 하고 실제 값은 바꾸지 않는다. 본문을 보고 어느 쪽이 맞는지 자동으로 골라서 고치지 않는다.
+- `categories`: 존재/형식만 확인. 비어 있거나 이상해도 경고만 하고 새로 만들거나 바꾸지 않는다. "categories는 항상 몇 개"류의 규칙을 만들지 않는다. 다만 허용값은 `Troubleshooting` 또는 `Exploration` 단일값으로 정해져 있으므로(`BLOG_POLICY.md` §2), 그 외의 값(예: `[Git, GitHub]`, 복수 값, 다른 문자열, 대소문자가 다른 표기)이면 "현재 taxonomy와 맞지 않음"으로 경고만 하고 실제 값은 바꾸지 않는다. 본문을 보고 어느 쪽이 맞는지 자동으로 골라서 고치지 않는다.
 - `mermaid`: 본문에 ` ```mermaid ` 블록이 있는데 `mermaid: true`가 없으면 추가한다(렌더링 안 되는 실제 버그). 블록도 없는데 플래그만 있어도 굳이 지우지 않는다.
 
 ## 3. 파일명 / 날짜 검사

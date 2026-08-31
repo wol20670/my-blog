@@ -1,15 +1,16 @@
 <!--
   이 파일은 Front Matter 형식 + categories/tags 작성 예시를 보여주는 참고용 템플릿이다.
-  본문 구조(섹션 구성)의 기준은 이 파일이 아니라 CLAUDE.md다:
-    - Troubleshooting 글 → CLAUDE.md 2장(STAR) 구조. 아래 본문 골격이 그 예시다.
-    - Exploration 글 → CLAUDE.md 8.3절 구조(새로운 개념 → 흥미로운 지점 → 핵심 원리 →
-      기존 지식과 연결 → 활용/발전 방향). 별도 템플릿 파일을 두지 않고 CLAUDE.md 텍스트를 따른다.
+  일반 작성 규칙은 CLAUDE.md, 글 유형/category/tag 정책은 BLOG_POLICY.md를 참고한다.
+  본문 구조(섹션 구성)를 이 파일에 중복 정의하지 않는다:
+    - Troubleshooting 글 → BLOG_POLICY.md §1 Troubleshooting 구조. 아래 본문 골격이 그 예시다.
+    - Exploration 글 → BLOG_POLICY.md §1 Exploration 구조(새로운 개념 → 흥미로운 지점 → 핵심 원리 →
+      기존 지식과 연결 → 활용/발전 방향). 별도 템플릿 파일을 두지 않고 BLOG_POLICY.md 텍스트를 따른다.
 -->
 ---
 title: ""
 date: 2026-00-00 00:00:00 +0900
 description: ""
-categories: [Troubleshooting]   # 또는 [Exploration] — 정확히 1개만 (CLAUDE.md 8.2절)
+categories: [Troubleshooting]   # 또는 [Exploration] — 정확히 1개만 (BLOG_POLICY.md §2)
 tags: [git, merge, conflict]   # 이 글의 실제 내용에 근거해서 채운다. category와 겹치는
                                 # troubleshooting/exploration은 tag로 넣지 않는다.
 ---
