@@ -1,6 +1,6 @@
 ---
 title: "git restore, clean, revert는 뭐가 다를까 — 기준점으로 구분하기"
-date: 2026-08-31 18:00:00 +0900
+date: 2026-08-31 16:40:00 +0900
 description: "새 파일 만들기, 커밋 안 한 수정, 커밋 후 되돌리기 세 상황을 직접 실험하면서 restore/clean/revert의 차이를 정리합니다."
 categories: [Exploration]
 tags: [git, restore, clean, revert]
