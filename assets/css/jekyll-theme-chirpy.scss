@@ -1,0 +1,59 @@
+---
+---
+
+@use 'abstracts/variables' with (
+  $theme: '{{ site.theme_mode }}'
+);
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+/* ============================================================
+   Custom CSS  —  이 아래만 수정한다.
+   위쪽 front matter(---)와 @use 2줄은 Chirpy v7.6.0 원본 그대로다.
+   저 두 줄을 지우면 사이트 CSS가 통째로 사라지므로 건드리지 않는다.
+   ============================================================ */
+
+/* ---- 1) 게시글 카드 hover: 살짝 떠오르기 -------------------------
+   대상 선택 근거 (Chirpy v7.6.0 _layouts/home.html):
+     <article class="card-wrapper card">   ← 바깥 상자. _home.scss에서 background:none
+       <a class="post-preview row g-0">    ← 배경·그림자·둥근모서리를 가진 "진짜 카드"
+   그래서 transform / box-shadow는 .post-preview 에 건다.
+   .card-wrapper 에 걸면 배경 없는 투명 상자에 각진 그림자가 생긴다.
+------------------------------------------------------------------ */
+
+#post-list .post-preview {
+  /* Chirpy는 .post-preview::before 반투명 오버레이로 hover 효과를 이미 준다.
+     transform이 걸리면 그 ::before의 기준 요소가 바뀌므로, 여기서 기준을 고정해 둔다. */
+  position: relative;
+
+  /* 시작 상태를 명시. 없으면 마우스를 뗄 때(transform: none 으로 돌아갈 때) 부자연스럽다. */
+  transform: translateY(0);
+}
+
+/* 마우스가 있는 기기에서만. 터치 기기는 hover가 눌러붙어서 안 풀린다.
+   Chirpy도 _base.scss에서 같은 패턴을 쓴다. */
+@media (hover: hover) {
+  #post-list .post-preview {
+    /* transition은 "한 덩어리" 속성이라 다시 쓰면 기존 값이 통째로 덮어써진다.
+       Chirpy 원래 값인 background-color를 여기 같이 적어서 보존한다(테마 전환 fade). */
+    transition:
+      background-color 0.35s ease-in-out,
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  #post-list .post-preview:hover {
+    transform: translateY(-4px);
+
+    /* --card-shadow 는 라이트/다크에서 값이 다른 테마 변수.
+       기본 그림자를 유지한 채 "떠오른 만큼"의 그림자만 뒤에 덧댄다. */
+    box-shadow:
+      var(--card-shadow),
+      0 12px 24px rgb(0 0 0 / 10%);
+  }
+}
