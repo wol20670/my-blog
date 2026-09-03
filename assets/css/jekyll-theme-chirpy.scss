@@ -61,9 +61,14 @@
 /* ---- 2) 카드 등장: 아주 약한 fade-up ------------------------------
    @keyframes = "움직임의 대본"(어떤 상태에서 어떤 상태로 갈지)
    animation  = 그 대본을 실제로 요소에 트는 것. 둘은 항상 짝으로 쓴다.
+
+   ⚠ 이름은 반드시 고유하게. Chirpy가 이미 @keyframes fade-up 을 정의해
+   게시글 목차(#toc-wrapper)에 쓰고 있다. 같은 이름을 다시 정의하면
+   나중 것이 앞 것을 통째로 대체해 TOC 등장 방식이 조용히 바뀐다.
+   그래서 post-card- 접두사를 붙였다.
 ------------------------------------------------------------------ */
 
-@keyframes fade-up {
+@keyframes post-card-fade-up {
   from {
     opacity: 0;
     transform: translateY(12px); /* 12px만. 기술 블로그라 읽기를 방해하면 안 된다 */
@@ -83,7 +88,7 @@
      이게 없으면 delay 동안 카드가 최종 모습(opacity:1)으로 멀쩡히 보이다가
      애니메이션이 시작되는 순간 갑자기 사라졌다 다시 나타나 깜빡인다.
      both는 "시작 전엔 from 상태를, 끝난 뒤엔 to 상태를 유지하라"는 뜻이다. */
-  animation: fade-up 0.4s ease-out both;
+  animation: post-card-fade-up 0.4s ease-out both;
 }
 
 /* 카드마다 조금씩 늦게 시작시켜 순서대로 등장하게 한다.
