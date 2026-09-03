@@ -100,3 +100,84 @@
     animation-delay: ($i - 1) * 60ms;
   }
 }
+
+/* ---- 3) 태그 목록: 간격을 margin 방식에서 flex gap 방식으로 --------
+   /tags/ 페이지 구조:
+     <div id="tags" class="d-flex flex-wrap">   ← Chirpy가 이미 flex로 만들어 둠
+       <div><a class="tag">git<span>5</span></a></div>
+       <div><a class="tag">…</a></div>
+
+   즉 flex를 새로 켜는 게 아니라, Chirpy가 간격을 만드는 방식을 바꾸는 것이다.
+   기존: .tag { margin-right: .8rem; line-height: 3rem }
+     → 줄바꿈되면 각 줄 오른쪽 끝에 쓸모없는 여백이 남고,
+       세로 간격을 line-height(글줄 높이)로 억지로 만들고 있다.
+   gap은 "칸과 칸 사이"에만 들어가므로 두 문제가 같이 해결된다.
+------------------------------------------------------------------ */
+
+#tags {
+  /* 두 값 = 행 간격 0.6rem, 열 간격 0.8rem. 세로/가로를 따로 줄 수 있다. */
+  gap: 0.6rem 0.8rem;
+}
+
+#tags .tag {
+  /* .tag는 display 지정이 없는 <a> = inline 요소.
+     inline 요소에는 transform이 아예 적용되지 않으므로 hover 효과를 주려면 필수다.
+     (세로 padding이 높이에 반영되지 않던 문제도 같이 해결된다) */
+  display: inline-block;
+
+  margin-right: 0; /* gap이 대신하므로 해제 */
+  line-height: 1.6; /* 세로 간격을 만들던 3rem 해제 */
+}
+
+/* 태그 hover — 카드보다 작은 요소라 움직임도 더 작게(-2px). */
+@media (hover: hover) {
+  #tags .tag,
+  .post-tags .post-tag {
+    /* Chirpy는 transition을 :hover 안에만 둬서 마우스를 뗄 때는 뚝 끊긴다.
+       기본 상태에 두면 들어올 때와 나갈 때 모두 부드러워진다.
+       background 0.35s는 Chirpy 원래 값이라 그대로 유지. */
+    transition:
+      background 0.35s ease-in-out,
+      transform 0.2s ease;
+  }
+
+  #tags .tag:hover,
+  .post-tags .post-tag:hover {
+    /* transform 하나에 여러 함수를 나열하면 순서대로 적용된다.
+       속성을 두 번 쓰면 나중 것이 앞 것을 덮어쓰므로 반드시 한 줄에 적는다. */
+    transform: translateY(-2px) scale(1.03);
+  }
+}
+
+/* ---- 4) 접근성: 움직임 최소화 설정 존중 ----------------------------
+   OS에 "동작 줄이기"를 켠 사용자(전정기관 질환, 멀미, 주의력 문제 등)에게는
+   화면이 움직이는 것 자체가 불편하거나 어지럼증을 유발할 수 있다.
+
+   흔히 쓰는 * { animation: none !important } 식의 전역 차단은 쓰지 않는다.
+   테마가 원래 갖고 있던 동작(TOC 등장, 사이드바 슬라이드 등)까지 같이 꺼버리는데,
+   그건 우리가 결정할 문제가 아니다. 우리가 추가한 것만 되돌린다.
+
+   그리고 끄는 것은 "이동"뿐이다. opacity/배경색 fade는 화면이 움직이는 게
+   아니므로 남겨둔다 — reduced motion의 취지에 더 맞다.
+
+   아래 selector는 위에서 쓴 것과 특이도(specificity)가 같지만,
+   파일에서 나중에 나오므로 이긴다. → !important 불필요.
+------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* 카드 등장 애니메이션은 통째로 끈다.
+     fill-mode: both 였으므로 animation: none 이면 원래 모습으로 즉시 표시된다. */
+  #post-list .card-wrapper {
+    animation: none;
+  }
+
+  /* hover의 "떠오름"만 제거. 그림자와 배경 fade는 그대로 둔다. */
+  #post-list .post-preview,
+  #post-list .post-preview:hover,
+  #tags .tag,
+  #tags .tag:hover,
+  .post-tags .post-tag,
+  .post-tags .post-tag:hover {
+    transform: none;
+  }
+}
