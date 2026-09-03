@@ -58,43 +58,40 @@
   }
 }
 
-/* ---- 2) 데스크톱에서 게시글 목록을 2열 Grid로 ---------------------
-   1200px = Chirpy의 xl breakpoint. (Chirpy는 Bootstrap과 값이 다르다:
-   sm 576 / md 768 / lg 850 / xl 1200 / xxl 1400)
-   본문 <main>이 col-xl-9로 좁아지고 우측 panel이 나타나는 지점과 일치시킨다.
-
-   이 미디어쿼리 "안"에만 규칙이 있으므로, 1199px 이하에서는
-   Chirpy 기본 1열 레이아웃이 손대지 않은 그대로 남는다. → 모바일 자동 안전.
+/* ---- 2) 카드 등장: 아주 약한 fade-up ------------------------------
+   @keyframes = "움직임의 대본"(어떤 상태에서 어떤 상태로 갈지)
+   animation  = 그 대본을 실제로 요소에 트는 것. 둘은 항상 짝으로 쓴다.
 ------------------------------------------------------------------ */
 
-@media (min-width: 1200px) {
-  #post-list {
-    /* 원래 #post-list는 그냥 block이라 <article>들이 세로로 하나씩 쌓였다.
-       grid로 바꾸면 자식들이 아래에서 정한 칸에 순서대로 채워진다. */
-    display: grid;
-
-    /* "폭이 1fr(남은 공간 균등분할)인 열 2개".
-       minmax(0, 1fr)에서 0이 핵심 — 1fr의 기본 최소폭은 auto(=내용 크기)라서,
-       긴 제목이 있으면 칸이 내용에 밀려 늘어나고 두 열 폭이 틀어진다.
-       최소폭을 0으로 못박아야 내용이 길어도 칸이 정확히 반반을 유지한다. */
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    /* gap은 "칸과 칸 사이"에만 들어간다. margin과 달리 바깥쪽 끝에는 안 붙는다.
-       값은 Chirpy가 쓰던 margin-bottom과 동일하게 맞춰 기존 간격감을 유지. */
-    gap: 1.25rem;
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px); /* 12px만. 기술 블로그라 읽기를 방해하면 안 된다 */
   }
 
-  /* Chirpy는 카드 간격을 margin-bottom으로 준다(_home.scss).
-     gap과 겹치면 세로 간격만 2배가 되므로 여기서 margin 쪽을 해제한다. */
-  #post-list .card-wrapper:not(:last-child) {
-    margin-bottom: 0;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  /* grid는 같은 줄의 칸 높이를 기본으로 맞춘다(align-items: stretch).
-     그래서 <article>은 늘어나는데, 배경을 가진 안쪽 <a>는 내용 높이 그대로라
-     짧은 카드에 빈 공간이 생긴다.
-     <article>은 Bootstrap .card = flex column 이므로 flex: 1 로 남은 높이를 채우게 한다. */
-  #post-list .post-preview {
-    flex: 1;
+/* hover는 안쪽 <a class="post-preview">, 등장은 바깥 <article class="card-wrapper">.
+   서로 다른 요소에 걸어야 두 transform이 충돌하지 않는다.
+   (한 요소에 두 개를 걸면 나중 것이 앞 것을 덮어쓴다) */
+#post-list .card-wrapper {
+  /* both = animation-fill-mode: both.
+     이게 없으면 delay 동안 카드가 최종 모습(opacity:1)으로 멀쩡히 보이다가
+     애니메이션이 시작되는 순간 갑자기 사라졌다 다시 나타나 깜빡인다.
+     both는 "시작 전엔 from 상태를, 끝난 뒤엔 to 상태를 유지하라"는 뜻이다. */
+  animation: fade-up 0.4s ease-out both;
+}
+
+/* 카드마다 조금씩 늦게 시작시켜 순서대로 등장하게 한다.
+   _config.yml의 paginate: 10 → 한 페이지에 카드는 최대 10개이므로 10까지면 충분하다.
+   이 SCSS @for 3줄이 컴파일되면 nth-child 규칙 10개로 펼쳐진다.
+   (손으로 20~30개를 쓸 필요가 없는 이유) */
+@for $i from 1 through 10 {
+  #post-list .card-wrapper:nth-child(#{$i}) {
+    animation-delay: ($i - 1) * 60ms;
   }
 }
