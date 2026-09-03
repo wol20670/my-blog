@@ -148,3 +148,36 @@
     transform: translateY(-2px) scale(1.03);
   }
 }
+
+/* ---- 4) 접근성: 움직임 최소화 설정 존중 ----------------------------
+   OS에 "동작 줄이기"를 켠 사용자(전정기관 질환, 멀미, 주의력 문제 등)에게는
+   화면이 움직이는 것 자체가 불편하거나 어지럼증을 유발할 수 있다.
+
+   흔히 쓰는 * { animation: none !important } 식의 전역 차단은 쓰지 않는다.
+   테마가 원래 갖고 있던 동작(TOC 등장, 사이드바 슬라이드 등)까지 같이 꺼버리는데,
+   그건 우리가 결정할 문제가 아니다. 우리가 추가한 것만 되돌린다.
+
+   그리고 끄는 것은 "이동"뿐이다. opacity/배경색 fade는 화면이 움직이는 게
+   아니므로 남겨둔다 — reduced motion의 취지에 더 맞다.
+
+   아래 selector는 위에서 쓴 것과 특이도(specificity)가 같지만,
+   파일에서 나중에 나오므로 이긴다. → !important 불필요.
+------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  /* 카드 등장 애니메이션은 통째로 끈다.
+     fill-mode: both 였으므로 animation: none 이면 원래 모습으로 즉시 표시된다. */
+  #post-list .card-wrapper {
+    animation: none;
+  }
+
+  /* hover의 "떠오름"만 제거. 그림자와 배경 fade는 그대로 둔다. */
+  #post-list .post-preview,
+  #post-list .post-preview:hover,
+  #tags .tag,
+  #tags .tag:hover,
+  .post-tags .post-tag,
+  .post-tags .post-tag:hover {
+    transform: none;
+  }
+}
