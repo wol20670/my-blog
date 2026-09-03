@@ -57,3 +57,41 @@
       0 12px 24px rgb(0 0 0 / 10%);
   }
 }
+
+/* ---- 2) 카드 등장: 아주 약한 fade-up ------------------------------
+   @keyframes = "움직임의 대본"(어떤 상태에서 어떤 상태로 갈지)
+   animation  = 그 대본을 실제로 요소에 트는 것. 둘은 항상 짝으로 쓴다.
+------------------------------------------------------------------ */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px); /* 12px만. 기술 블로그라 읽기를 방해하면 안 된다 */
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* hover는 안쪽 <a class="post-preview">, 등장은 바깥 <article class="card-wrapper">.
+   서로 다른 요소에 걸어야 두 transform이 충돌하지 않는다.
+   (한 요소에 두 개를 걸면 나중 것이 앞 것을 덮어쓴다) */
+#post-list .card-wrapper {
+  /* both = animation-fill-mode: both.
+     이게 없으면 delay 동안 카드가 최종 모습(opacity:1)으로 멀쩡히 보이다가
+     애니메이션이 시작되는 순간 갑자기 사라졌다 다시 나타나 깜빡인다.
+     both는 "시작 전엔 from 상태를, 끝난 뒤엔 to 상태를 유지하라"는 뜻이다. */
+  animation: fade-up 0.4s ease-out both;
+}
+
+/* 카드마다 조금씩 늦게 시작시켜 순서대로 등장하게 한다.
+   _config.yml의 paginate: 10 → 한 페이지에 카드는 최대 10개이므로 10까지면 충분하다.
+   이 SCSS @for 3줄이 컴파일되면 nth-child 규칙 10개로 펼쳐진다.
+   (손으로 20~30개를 쓸 필요가 없는 이유) */
+@for $i from 1 through 10 {
+  #post-list .card-wrapper:nth-child(#{$i}) {
+    animation-delay: ($i - 1) * 60ms;
+  }
+}
