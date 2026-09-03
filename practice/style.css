@@ -1,0 +1,48 @@
+body {
+  background-color: #f4f4f4;
+  color: #333333;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+/* 메뉴 카드 한 장 */
+.menu-card {
+  background-color: #ffffff;
+  border: 5px solid #891e1e;
+  border-radius: 0px;
+  padding: 40px;
+}
+
+/* 사진이 들어갈 자리 */
+.thumb {
+  width: 160px;
+  height: 110px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}
+
+.menu-name {
+  font-size: 18px;
+}
+
+.price {
+  font-size: 16px;
+  color: #c0392b;
+}
+
+/* 카드를 감싸는 목록 */
+.menu-list {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.badge {
+    display: block;
+    background-color: red;  
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
