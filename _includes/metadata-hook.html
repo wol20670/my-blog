@@ -1,0 +1,23 @@
+<!-- 명조(Wuthering Waves) 테마 웹폰트.
+
+     이 파일은 Chirpy v7.6.0 이 <head> 끝에 include 하는 빈 확장 지점이다
+     (원본 내용: "A placeholder to allow defining custom metadata").
+     head.html 을 통째로 복사하는 것보다 gem 업데이트와 충돌할 여지가 적다.
+
+     CSS 쪽에 @import 로 넣지 않는 이유:
+     @import 는 모든 스타일 규칙보다 앞서야 하는데, 커스텀 CSS 블록 위에는
+     이미 Chirpy 규칙 수천 줄이 출력돼 있어 브라우저가 조용히 버린다.
+
+     Chirpy 가 fonts.googleapis.com / fonts.gstatic.com 은 이미 preconnect 하므로
+     jsDelivr 만 추가로 예열한다. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+<!-- 본문(한글): Pretendard.
+     dynamic subset 이라 실제로 쓰인 글자가 속한 조각만 내려받는다. -->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 라틴/숫자/UI 라벨: Advent Pro.
+     명조 공식 사이트가 실제로 쓰는 서체다. 라틴 전용이라 한글은 영향이 없다. -->
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@300;500;700&amp;display=swap">

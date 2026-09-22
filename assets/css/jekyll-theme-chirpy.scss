@@ -16,62 +16,780 @@
    Custom CSS  —  이 아래만 수정한다.
    위쪽 front matter(---)와 @use 2줄은 Chirpy v7.6.0 원본 그대로다.
    저 두 줄을 지우면 사이트 CSS가 통째로 사라지므로 건드리지 않는다.
-   ============================================================ */
+   ============================================================
 
-/* ---- 1) 게시글 카드 hover: 살짝 떠오르기 -------------------------
+   테마: 명조(Wuthering Waves) — 흑조 전용.
+   _config.yml 의 theme_mode: dark 와 짝이다. 라이트 모드는 존재하지 않는다.
+
+   ── 이 파일의 순서 (바꾸지 말 것) ──────────────────────────
+     1  색 토큰              --wuwa-* 정의
+     2  Chirpy 변수 매핑      테마 변수를 토큰에 연결
+     3  Bootstrap 지역 변수   :root 로는 닿지 않는 것들
+     4  하드코딩 색 보정      변수를 안 쓰고 박혀 있는 색들
+     5  폰트
+     6  형태 — 모따기
+     7  전역 연출
+     8  사이드바
+     9  상단바
+    10  게시글 목록
+    11  본문 타이포그래피
+    12  코드 블록 / 프롬프트
+    13  태그 · 카테고리 · 아카이브
+    14  페이지네이션 · TOC · 기타
+    15  접근성: 움직임 최소화   ← 반드시 마지막
+------------------------------------------------------------ */
+
+
+/* ---- 1) 색 토큰 ---------------------------------------------------
+   선택자가 왜 이 모양인가:
+
+   Chirpy는 색을 네 군데에 나눠 정의한다.
+     :root[data-bs-theme=light]
+     :root[data-bs-theme=dark]
+     @media(prefers-color-scheme: light) { :root:not([data-bs-theme]) }
+     @media(prefers-color-scheme: dark)  { :root:not([data-bs-theme]) }
+
+   theme_mode: dark 를 넣으면 Chirpy는 두 번째 하나만 출력하고 나머지는 사라진다.
+   하지만 그 전(= 지금 배포된 사이트, 콘솔 붙여넣기 미리보기)에는 넷이 다 살아 있다.
+   그래서 "속성이 있든 없든" 두 경우를 모두 잡는다. 요소는 반드시 둘 중 하나이므로
+   이 두 줄이면 빠짐이 없다.
+
+   특이도는 (0,2,0)으로 Chirpy와 동점이고 우리 CSS가 뒤에 출력되므로 이긴다.
+   @media 는 특이도를 올리지 않으므로 미디어쿼리 안의 정의도 같이 이긴다.
+   → !important 불필요.
+
+   ⚠ 이 목록에 문법이 틀린 선택자를 하나라도 덧붙이면 목록 전체가 무효가 된다.
+------------------------------------------------------------------ */
+
+:root[data-bs-theme],
+:root:not([data-bs-theme]) {
+  /* 스크롤바·폼 컨트롤 같은 브라우저 기본 UI까지 다크로.
+     라이트 선호 사용자가 들어와도 흰 스크롤바가 튀지 않는다. */
+  color-scheme: dark;
+
+  /* 바탕 — 먹빛 남색. 완전한 검정(#000)은 쓰지 않는다.
+     글자 경계가 번져 보이고, 그림자로 층을 만들 수 없기 때문이다. */
+  --wuwa-ink: #0b0f13;
+  --wuwa-bg: #0e1317;
+  --wuwa-surface: #141b20;
+  --wuwa-surface-2: #1a2329;
+  --wuwa-well: #090d10;
+
+  /* 글자 — 대비는 WCAG AA(4.5:1) 이상을 지킨다.
+     muted 를 #6e7b82 로 잡았다가 카드 위에서 3.99:1 로 떨어져 올렸다.
+     .post-meta 가 카드(--wuwa-surface) 위에 얹히기 때문이다. */
+  --wuwa-text: #b9c2c6;
+  --wuwa-text-hi: #e6edf0;
+  --wuwa-muted: #8a969d;
+  --wuwa-muted-hi: #aebbc2;
+
+  /* 강조 — 시안(공명)과 금색(황룡). 잔상 레드는 경고에만. */
+  --wuwa-cyan: #4fd8ce;
+  --wuwa-cyan-dim: #2e8f89;
+  --wuwa-cyan-08: rgb(79 216 206 / 8%);
+  --wuwa-cyan-18: rgb(79 216 206 / 18%);
+  --wuwa-cyan-35: rgb(79 216 206 / 35%);
+  --wuwa-gold: #d9b26a;
+  --wuwa-red: #e24b3b;
+  --wuwa-red-text: #f2705f;
+
+  /* 선과 빛 */
+  --wuwa-line: rgb(79 216 206 / 22%);
+  --wuwa-line-soft: rgb(140 160 170 / 14%);
+
+  /* 모따기 크기. 컴포넌트에서 이 값만 다시 정의하면 모양이 따라온다. */
+  --wuwa-cut: 14px;
+  --wuwa-cut-sm: 8px;
+
+  /* 폰트 스택.
+     Advent Pro 는 명조 공식 사이트가 실제로 쓰는 서체다 (그 사이트 CSS에
+     base64로 박힌 폰트의 내부 이름이 "Advent Pro Light"이다).
+     라틴 전용이라 한글은 자동으로 다음 폰트로 떨어진다 = 한글은 웹폰트를 기다리지 않는다.
+     Chirpy 기본값에 있던 "Microsoft Yahei"는 중국어 폰트라 ko-KR에 맞지 않아 뺐다. */
+  --wuwa-font-body:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --wuwa-font-display: 'Advent Pro', 'Pretendard Variable', Pretendard,
+    'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+}
+
+
+/* ---- 2) Chirpy 변수 매핑 -------------------------------------------
+   Chirpy 테마 변수를 위 토큰에 연결한다. 색을 바꾸고 싶으면 1)만 고치면 된다.
+   ⚠ 표시가 붙은 것은 "그냥 어둡게 만들면 고장 나는" 변수다.
+------------------------------------------------------------------ */
+
+:root[data-bs-theme],
+:root:not([data-bs-theme]) {
+  /* 뼈대 */
+  --main-bg: var(--wuwa-bg);
+  --main-border-color: var(--wuwa-line-soft);
+  /* ⚠ --mask-bg 는 모바일에서 사이드바를 열 때 본문을 덮는 막이다.
+     새까맣게 만들면 페이지가 죽은 것처럼 보인다. 반투명 유지. */
+  --mask-bg: rgb(5 8 10 / 72%);
+
+  /* 글자 */
+  --text-color: var(--wuwa-text);
+  --text-muted-color: var(--wuwa-muted);
+  /* ⚠ 이름과 달리 --text-muted-highlight-color 는 muted 보다 "밝은" 값이다
+     (라이트 테마에선 inherit). 어둡게 하면 강조가 거꾸로 뒤집힌다. */
+  --text-muted-highlight-color: var(--wuwa-muted-hi);
+  --heading-color: var(--wuwa-text-hi);
+  --label-color: var(--wuwa-muted-hi);
+  --blockquote-border-color: var(--wuwa-cyan-35);
+  --blockquote-text-color: var(--wuwa-muted);
+  --link-color: var(--wuwa-cyan);
+  --link-underline-color: var(--wuwa-cyan-35);
+
+  /* 버튼.
+     --checkbox-checked-color 와 --btn-backtotop-color 는 각각
+     --link-color / --text-color 를 가리키는 별칭이다. 다시 정의하지 않는다.
+     별칭을 덮으면 연결이 끊겨 나중에 색을 바꿔도 따라오지 않는다. */
+  --button-bg: var(--wuwa-surface);
+  --btn-border-color: var(--wuwa-line);
+  --btn-backtotop-border-color: var(--wuwa-line);
+  --card-header-bg: var(--wuwa-surface-2);
+  --checkbox-color: var(--wuwa-line);
+
+  /* ⚠ --img-bg 와 --shimmer-bg 는 색이 아니라 그라디언트다.
+     단색을 넣으면 이미지 로딩 시 반짝이는 효과가 조용히 사라진다. */
+  --img-bg: radial-gradient(circle, #10171c 0%, #0a0e12 100%);
+  --shimmer-bg: linear-gradient(
+    90deg,
+    rgb(79 216 206 / 0%) 0%,
+    rgb(79 216 206 / 10%) 50%,
+    rgb(79 216 206 / 0%) 100%
+  );
+
+  /* 드롭다운 */
+  --menu-bg: var(--wuwa-surface-2);
+  --menu-border-color: var(--wuwa-line);
+  --menu-shadow-color: rgb(0 0 0 / 60%);
+  --menu-active-color: var(--wuwa-cyan);
+  --menu-highlight-bg: var(--wuwa-cyan-08);
+
+  /* 사이드바 */
+  --site-title-color: var(--wuwa-text-hi);
+  --site-subtitle-color: var(--wuwa-muted);
+  /* #sidebar 는 background 단축속성을 쓰므로 그라디언트를 넣을 수 있다 */
+  --sidebar-bg: linear-gradient(180deg, #121a1f 0%, #0c1115 100%);
+  --sidebar-border-color: var(--wuwa-line-soft);
+  --sidebar-muted-color: var(--wuwa-muted);
+  --sidebar-active-color: var(--wuwa-cyan);
+  --sidebar-hover-bg: var(--wuwa-cyan-08);
+  --sidebar-btn-bg: var(--wuwa-surface-2);
+  --sidebar-btn-color: var(--wuwa-muted);
+  /* 아바타 테두리는 box-shadow 로 그려진다 → 변수만 바꿔도 시안 링이 생긴다 */
+  --avatar-border-color: var(--wuwa-cyan);
+
+  /* 상단바 — ⚠ 반투명을 유지해야 한다. #topbar-wrapper 에 backdrop-filter 가
+     걸려 있어서 불투명하게 만들면 유리 효과가 통째로 사라진다. */
+  --topbar-bg: rgb(14 19 23 / 72%);
+  --topbar-text-color: var(--wuwa-text);
+  --search-border-color: var(--wuwa-line);
+  --search-icon-color: var(--wuwa-cyan-dim);
+  --input-focus-border-color: var(--wuwa-cyan);
+  --search-tag-bg: var(--wuwa-surface-2);
+
+  /* 카드 — 이 파일에서 이득이 가장 큰 두 줄 */
+  --card-bg: var(--wuwa-surface);
+  /* ⚠ --card-hover-bg 는 "배경"이 아니라 .post-preview::before 에 opacity .3 으로
+     덮이는 "막"이다. 어두운 색을 넣으면 hover 가 고장 난 것처럼 보인다.
+     시안 원색을 넣어야 30% 농도의 공명 물결이 된다. */
+  --card-hover-bg: var(--wuwa-cyan);
+  /* ⚠ --card-shadow 는 2겹이고 둘째 겹(0 0 0 1px)은 그림자가 아니라 카드의
+     1px 테두리다. 한 겹으로 바꾸면 모든 카드의 테두리가 사라진다.
+     → 공짜로 얻는 발광 해어라인. */
+  --card-shadow: 0 4px 16px rgb(0 0 0 / 55%), 0 0 0 1px var(--wuwa-line);
+
+  /* 목록 · 페이지네이션.
+     --btn-paginator-hover-color 는 --sidebar-bg 별칭이라 건드리지 않는다. */
+  --post-list-text-color: var(--wuwa-text);
+  --btn-patinator-text-color: var(--wuwa-muted);
+
+  /* TOC · 태그 · 표. --tb-border-color 는 --tb-odd-bg 별칭. */
+  --toc-highlight: var(--wuwa-cyan);
+  --toc-popup-border-color: var(--wuwa-line);
+  --tag-hover: var(--wuwa-cyan-18);
+  --tag-border: var(--wuwa-line);
+  --tag-shadow: transparent;
+  --tb-odd-bg: #131a1f;
+  --tb-even-bg: #0f161a;
+  --dash-color: var(--wuwa-line-soft);
+  --footnote-target-bg: var(--wuwa-cyan-18);
+  --btn-share-color: var(--wuwa-muted);
+  --btn-share-hover-color: var(--wuwa-cyan);
+
+  /* ⚠ prompt 4종은 의미(팁/정보/경고/위험)를 담고 있다.
+     전부 시안으로 통일하면 신호가 죽는다. 색조만 옮기고 구분은 남긴다. */
+  --prompt-text-color: var(--wuwa-text);
+  --prompt-tip-bg: rgb(23 62 56 / 60%);
+  --prompt-tip-icon-color: #3fd9a4;
+  --prompt-info-bg: rgb(16 46 66 / 60%);
+  --prompt-info-icon-color: #4fb4d8;
+  --prompt-warning-bg: rgb(66 52 18 / 60%);
+  --prompt-warning-icon-color: var(--wuwa-gold);
+  --prompt-danger-bg: rgb(66 24 18 / 60%);
+  --prompt-danger-icon-color: var(--wuwa-red);
+
+  /* 카테고리 · 아카이브 */
+  --categories-border: var(--wuwa-line-soft);
+  --categories-hover-bg: var(--wuwa-cyan-08);
+  --categories-icon-hover-color: var(--wuwa-cyan);
+  --timeline-node-bg: var(--wuwa-cyan);
+  --timeline-color: var(--wuwa-line-soft);
+
+  /* 코드 — ⚠ --highlight-bg-color 는 --main-bg 보다 "더 어두워야" 한다.
+     코드 블록이 한 단 파인 것처럼 보이는 이 관계가 가독성을 만든다. */
+  --language-border-color: var(--wuwa-line-soft);
+  --highlight-bg-color: var(--wuwa-well);
+  --highlight-lineno-color: #55636b;
+  --highlighter-rouge-color: var(--wuwa-cyan);
+  --inline-code-bg: var(--wuwa-cyan-08);
+  --code-color: var(--wuwa-text);
+  --code-header-text-color: var(--wuwa-muted);
+  --code-header-muted-color: var(--wuwa-line-soft);
+  --code-header-icon-color: var(--wuwa-muted);
+  --clipboard-checked-color: #3fd9a4;
+  --filepath-text-color: var(--wuwa-gold);
+  --kbd-wrap-color: var(--wuwa-line);
+  --kbd-text-color: var(--wuwa-text);
+  --kbd-bg-color: var(--wuwa-surface-2);
+
+  /* Bootstrap 쪽 */
+  --bs-body-bg: var(--wuwa-bg);
+  --bs-body-color: var(--wuwa-text);
+  --bs-emphasis-color: var(--wuwa-text-hi);
+  --bs-heading-color: var(--wuwa-text-hi);
+  --bs-link-color: var(--wuwa-cyan);
+  --bs-link-hover-color: #7fe8e0;
+  --bs-border-color: var(--wuwa-line-soft);
+  --bs-secondary-bg: #131a1f;
+  --bs-tertiary-bg: #0f161a;
+  --bs-body-font-family: var(--wuwa-font-body);
+  --bs-font-sans-serif: var(--wuwa-font-body);
+}
+
+
+/* ---- 3) Bootstrap 지역 변수 -----------------------------------------
+   Bootstrap 5는 컴포넌트가 자기 변수를 "자기 자신 위에" 선언한다.
+     .pagination { --bs-pagination-active-bg: #0d6efd; ... }
+   이러면 :root 에 아무리 써도 컴포넌트에 가려져 효과가 없다.
+   에러도 안 나고 색만 안 바뀌어 원인을 찾기 어렵다. → 컴포넌트에 직접 쓴다.
+------------------------------------------------------------------ */
+
+.pagination {
+  --bs-pagination-color: var(--wuwa-muted);
+  --bs-pagination-bg: transparent;
+  --bs-pagination-border-color: transparent;
+  --bs-pagination-hover-color: var(--wuwa-cyan);
+  --bs-pagination-hover-bg: var(--wuwa-cyan-08);
+  --bs-pagination-hover-border-color: var(--wuwa-line);
+  --bs-pagination-focus-color: var(--wuwa-cyan);
+  --bs-pagination-focus-bg: var(--wuwa-cyan-08);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.2rem var(--wuwa-cyan-18);
+  --bs-pagination-active-color: var(--wuwa-ink);
+  --bs-pagination-active-bg: var(--wuwa-cyan);
+  --bs-pagination-active-border-color: var(--wuwa-cyan);
+  --bs-pagination-disabled-color: var(--wuwa-line-soft);
+  --bs-pagination-disabled-bg: transparent;
+  --bs-pagination-disabled-border-color: transparent;
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--wuwa-surface-2);
+  --bs-dropdown-color: var(--wuwa-text);
+  --bs-dropdown-border-color: var(--wuwa-line);
+  --bs-dropdown-link-color: var(--wuwa-text);
+  --bs-dropdown-link-hover-color: var(--wuwa-cyan);
+  --bs-dropdown-link-hover-bg: var(--wuwa-cyan-08);
+  --bs-dropdown-link-active-color: var(--wuwa-ink);
+  --bs-dropdown-link-active-bg: var(--wuwa-cyan);
+}
+
+.list-group {
+  --bs-list-group-bg: transparent;
+  --bs-list-group-color: var(--wuwa-text);
+  --bs-list-group-border-color: var(--wuwa-line-soft);
+  --bs-list-group-active-color: var(--wuwa-ink);
+  --bs-list-group-active-bg: var(--wuwa-cyan);
+  --bs-list-group-active-border-color: var(--wuwa-cyan);
+}
+
+.card {
+  --bs-card-bg: transparent;
+  --bs-card-border-color: var(--wuwa-line-soft);
+  --bs-card-color: var(--wuwa-text);
+  --bs-card-cap-bg: var(--wuwa-surface-2);
+}
+
+
+/* ---- 4) 하드코딩된 색 보정 -------------------------------------------
+   Chirpy가 변수를 쓰지 않고 색을 직접 박아 둔 자리들. 토큰으로는 절대 닿지 않는다.
+   /archives/ 의 흰색 줄무늬가 제일 위험하다 — 홈만 보며 작업하면 안 보인다.
+------------------------------------------------------------------ */
+
+/* 링크 hover 가 전부 주황(#d2603a !important)으로 박혀 있다.
+   이 파일에서 !important 를 쓰는 유일한 자리다. 상대가 !important 라
+   특이도나 순서로는 이길 수 없다. 선택자 목록은 원본 그대로 옮겼다. */
+#page-category a:hover,
+#page-tag a:hover,
+#access-lastmod a:hover,
+.post-tail-wrapper .license-wrapper > a:hover,
+.post-edit > a:hover,
+#search-results a:hover,
+footer a:hover,
+#topbar #breadcrumb a:hover,
+.post-meta a:not([class]):hover,
+.content a:not(.img-link):hover {
+  color: var(--wuwa-cyan) !important;
+  border-bottom-color: var(--wuwa-cyan);
+}
+
+/* 아카이브 목록 홀수 줄에 흰색 그라디언트가 그려져 있다 */
+#archives ul li:nth-child(odd) {
+  background-color: transparent;
+  background-image: linear-gradient(
+    to left,
+    transparent,
+    rgb(79 216 206 / 4%),
+    rgb(79 216 206 / 4%),
+    transparent
+  );
+}
+
+/* 타임라인 점의 흐린 후광(#c2c6cc) → 시안 발광 */
+#archives .year::after,
+#archives a::before {
+  box-shadow: 0 0 6px 0 var(--wuwa-cyan-35);
+}
+
+/* 카테고리 접기 버튼 — 원본이 !important 라 같이 써야 한다 */
+.category-trigger {
+  color: var(--wuwa-muted) !important;
+}
+
+/* 비활성 페이지네이터 */
+.pagination .page-item.disabled .page-link,
+.pagination .disabled {
+  color: var(--wuwa-line-soft);
+}
+
+/* 각종 회색 아이콘 */
+#toc-bar button i,
+#topbar button i,
+#toc-popup .header button i,
+#search-results > article i {
+  color: var(--wuwa-muted);
+}
+
+/* 카테고리/태그 페이지의 회색 글머리 → 시안 마름모 */
+#page-category ul > li::before,
+#page-tag ul > li::before {
+  background: var(--wuwa-cyan);
+  transform: rotate(45deg);
+}
+
+/* 이미지 캡션 */
+.content a.popup + em,
+.embed-video + em {
+  color: var(--wuwa-muted);
+}
+
+/* 검색창 포커스가 부트스트랩 기본 파랑으로 뜬다 */
+.form-control:focus {
+  border-color: var(--wuwa-cyan);
+  box-shadow: 0 0 0 0.2rem var(--wuwa-cyan-18);
+}
+
+
+/* ---- 5) 폰트 --------------------------------------------------------
+   폰트 <link> 는 _includes/metadata-hook.html 에 있다.
+   여기에 @import 를 쓸 수 없기 때문이다 — CSS 규칙상 @import 는 모든 스타일
+   규칙보다 앞서야 하는데, 이 블록 위에는 이미 Chirpy의 규칙 수천 줄이 출력돼 있다.
+   브라우저가 조용히 버리고 에러도 내지 않는다. @use 위로 옮기는 것도 불가능하다
+   (Dart Sass 가 @use 를 맨 앞에 요구한다 → 컴파일 에러).
+------------------------------------------------------------------ */
+
+body {
+  font-family: var(--wuwa-font-body);
+}
+
+/* 라틴·숫자·UI 라벨만 Advent Pro. 한글은 스택 다음 순서로 자동 폴백된다.
+   덕분에 한글 본문은 웹폰트 로딩을 기다리지 않는다. */
+#sidebar .site-title,
+#sidebar ul li.nav-item a.nav-link span,
+.post-meta,
+.post-meta time,
+.pagination,
+.code-header .filepath,
+#archives .year,
+.tag,
+.post-tag {
+  font-family: var(--wuwa-font-display);
+}
+
+/* 게임 UI 라벨 톤 — 자간을 벌린다. 한글에는 영향이 거의 없다. */
+#sidebar ul li.nav-item a.nav-link span,
+.post-meta,
+.tag,
+.post-tag {
+  letter-spacing: 0.06em;
+}
+
+/* 숫자 폭을 고정해 날짜가 흔들리지 않게 한다 */
+.post-meta,
+#archives,
+.pagination {
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ---- 6) 형태 — 모따기 ----------------------------------------------
+   명조 UI의 정체성 절반은 "모서리를 깎은 각진 프레임"이다.
+   이걸 CSS로 만드는 방법을 셋 검토했고, 결론은 2단 구성이다.
+
+   ✗ clip-path: polygon()
+     모양은 정확하지만 box-shadow 와 outline 까지 같이 잘라낸다.
+     발광을 잃는 건 참을 수 있어도 포커스 링이 사라지는 건 접근성 문제다.
+     (부모에 filter: drop-shadow 로 우회하면 그 부모가 fixed/absolute 자식의
+      기준 상자가 되어 #toc-wrapper 의 sticky 가 깨진다)
+   ✗ border-image
+     1px 사선 테두리를 만들 수 없고 border-radius 를 통째로 무력화한다.
+   ✓ 비대칭 border-radius + corner-shape
+
+   1단(모든 브라우저): 마주 보는 두 모서리만 둥글린다 → 이미 각져 보인다.
+   2단(Chromium 139+): corner-shape: bevel 을 얹으면 그 둥근 모서리가
+        사선으로 깎인다. background·border·outline·box-shadow·overflow 가
+        전부 이 모양을 따라간다 — clip-path 가 만든 문제를 전부 피한다.
+        corner-shape 는 border-radius 가 0이 아니어야 동작하므로
+        두 단계는 "대안"이 아니라 "한 쌍"이다.
+   지원하지 않는 브라우저는 둥근 모서리로 보인다. 다른 모습이지 깨진 모습이 아니다.
+------------------------------------------------------------------ */
+
+/* 1단 — Chirpy가 10px 둥근 모서리를 주는 면들을 그대로 대상으로 삼는다 */
+.post-preview,
+.post-preview::before,
+.highlight,
+div[class^='language-'],
+blockquote[class^='prompt-'],
+.preview-img,
+.categories.card,
+.embed-video {
+  border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut);
+}
+
+/* 안쪽 이미지는 바깥보다 1~2px 작게. 같은 값이면 모서리에 밝은 실선이 비친다 */
+.preview-img img {
+  border-radius: 0 calc(var(--wuwa-cut) - 1px) 0 calc(var(--wuwa-cut) - 1px);
+}
+
+.tag,
+.post-tag,
+#back-to-top,
+.code-header button,
+.pagination .page-link,
+#search-input,
+search {
+  border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+}
+
+/* 2단 — 깎기 */
+@supports (corner-shape: bevel) {
+  .post-preview,
+  .post-preview::before,
+  .highlight,
+  div[class^='language-'],
+  blockquote[class^='prompt-'],
+  .preview-img,
+  .preview-img img,
+  .categories.card,
+  .embed-video,
+  .tag,
+  .post-tag,
+  #back-to-top,
+  .code-header button,
+  .pagination .page-link,
+  #search-input,
+  search {
+    corner-shape: bevel;
+  }
+}
+
+/* 아바타 — 마크업에 Bootstrap 의 .rounded-circle(50% !important)이 붙어 있어
+   !important 없이는 못 이긴다. 원형을 깨고 육각형에 가까운 각진 형태로. */
+#sidebar #avatar.rounded-circle {
+  border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut) !important;
+  box-shadow: var(--wuwa-cyan) 0 0 0 2px, 0 0 18px rgb(79 216 206 / 25%);
+}
+
+@supports (corner-shape: bevel) {
+  #sidebar #avatar.rounded-circle {
+    corner-shape: bevel;
+  }
+}
+
+
+/* ---- 7) 전역 연출 ---------------------------------------------------
+   배경 격자 + 상단 공명 광. 이게 "인터페이스를 보고 있다"는 인상을 만든다.
+
+   body::before 를 쓰는 이유: background-attachment: fixed 는 iOS Safari 에서
+   스크롤 리페인트가 심하다. 고정 가상요소가 같은 결과를 훨씬 싸게 낸다.
+   z-index: -1 이면 본문 뒤로 가되 캔버스 배경보다는 위에 그려진다.
+   opacity 를 올리면 본문 대비가 실제로 떨어지므로 낮게 유지한다.
+------------------------------------------------------------------ */
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--wuwa-line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--wuwa-line-soft) 1px, transparent 1px),
+    radial-gradient(120% 55% at 50% 0%, rgb(79 216 206 / 7%) 0%, transparent 65%);
+  background-size: 72px 72px, 72px 72px, 100% 100%;
+  opacity: 0.55;
+}
+
+::selection {
+  background: var(--wuwa-cyan-35);
+  color: var(--wuwa-text-hi);
+}
+
+/* 스크롤바. #sidebar 와 #toc-wrapper 는 Chirpy가 일부러 숨겨 두었으므로 건드리지 않는다. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wuwa-cyan-dim) var(--wuwa-ink);
+}
+
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--wuwa-ink);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--wuwa-cyan-dim);
+  border: 2px solid var(--wuwa-ink);
+}
+
+/* 포커스 표시. Chirpy 가 .nav-link:focus-visible { outline: 0 } 으로 지워 두어
+   같은 특이도(0,2,0)로 되살린다. 키보드 사용자에게 필수다. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.nav-link:focus-visible,
+#post-list .post-preview:focus-visible {
+  outline: 2px solid var(--wuwa-cyan);
+  outline-offset: 2px;
+}
+
+
+/* ---- 8) 사이드바 ----------------------------------------------------
+   theme_mode: dark 를 켜면 Chirpy 가 라이트/다크 토글 버튼과 그 옆 구분선
+   (.icon-border)을 아예 렌더링하지 않는다. .sidebar-bottom 에 GitHub 아이콘만
+   남아 허전해지므로 정렬을 다시 잡아 준다.
+------------------------------------------------------------------ */
+
+#sidebar {
+  border-right: 1px solid var(--wuwa-line);
+}
+
+#sidebar .site-title {
+  letter-spacing: 0.04em;
+}
+
+#sidebar .site-subtitle {
+  font-size: 88%;
+  letter-spacing: 0.02em;
+}
+
+/* 메뉴 목록 위에 게임 UI 스타일 라벨을 하나 세운다 */
+#sidebar ul::before {
+  content: 'NAVIGATION';
+  display: block;
+  margin: 0 0 0.75rem 1.5rem;
+  font-family: var(--wuwa-font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  color: var(--wuwa-cyan-dim);
+}
+
+/* 활성/hover 표시는 가상요소 대신 inset box-shadow 로 그린다.
+   Chirpy 가 이미 쓰는 가상요소와 충돌하지 않고, 움직임이 없어
+   "동작 줄이기" 설정에서 따로 꺼 줄 것도 없다. */
+#sidebar ul li.nav-item a.nav-link {
+  border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+  transition: box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+#sidebar ul li.nav-item a.nav-link:hover {
+  box-shadow: inset 2px 0 0 var(--wuwa-cyan-35);
+}
+
+#sidebar ul li.nav-item.active a.nav-link {
+  box-shadow: inset 2px 0 0 var(--wuwa-cyan), 0 0 14px rgb(79 216 206 / 12%);
+}
+
+/* 토글이 사라진 자리 보정 */
+#sidebar .sidebar-bottom {
+  gap: 0.6rem;
+  justify-content: flex-start;
+}
+
+
+/* ---- 9) 상단바 ------------------------------------------------------ */
+
+#topbar-wrapper {
+  border-bottom: 1px solid var(--wuwa-line);
+}
+
+#topbar #breadcrumb {
+  font-family: var(--wuwa-font-display);
+  letter-spacing: 0.08em;
+}
+
+search {
+  border-color: var(--wuwa-line);
+}
+
+
+/* ---- 10) 게시글 목록 ------------------------------------------------
    대상 선택 근거 (Chirpy v7.6.0 _layouts/home.html):
      <article class="card-wrapper card">   ← 바깥 상자. _home.scss에서 background:none
        <a class="post-preview row g-0">    ← 배경·그림자·둥근모서리를 가진 "진짜 카드"
-   그래서 transform / box-shadow는 .post-preview 에 건다.
-   .card-wrapper 에 걸면 배경 없는 투명 상자에 각진 그림자가 생긴다.
+   그래서 배경/그림자/transform 은 .post-preview 에 건다.
+
+   가상요소 배분 (충돌 주의):
+     .post-preview::before → Chirpy 가 hover 막으로 이미 쓴다. 건드리지 않는다.
+     .post-preview::after  → 비어 있다. 좌측 공명 바로 쓴다.
+     .card-wrapper ::before/::after → 비어 있다. 모서리 브래킷으로 쓴다.
+
+   목록은 1열 세로 나열을 유지한다. 2열 그리드는 전에 해 봤다가 되돌렸다.
 ------------------------------------------------------------------ */
 
-#post-list .post-preview {
-  /* Chirpy는 .post-preview::before 반투명 오버레이로 hover 효과를 이미 준다.
-     transform이 걸리면 그 ::before의 기준 요소가 바뀌므로, 여기서 기준을 고정해 둔다. */
+#post-list .card-wrapper {
+  /* 브래킷을 절대배치하기 위한 기준. 등장 애니메이션의 transform 과 무관하다. */
   position: relative;
-
-  /* 시작 상태를 명시. 없으면 마우스를 뗄 때(transform: none 으로 돌아갈 때) 부자연스럽다. */
-  transform: translateY(0);
 }
 
-/* 마우스가 있는 기기에서만. 터치 기기는 hover가 눌러붙어서 안 풀린다.
-   Chirpy도 _base.scss에서 같은 패턴을 쓴다. */
+/* 모서리 브래킷 — 게임 UI의 ㄱ자 코너 마크.
+   corner-shape 를 지원하지 않는 브라우저에서도 이건 그대로 보이므로,
+   "명조처럼 보이는" 몫을 실제로 떠받치는 건 이쪽이다. */
+#post-list .card-wrapper::before,
+#post-list .card-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  z-index: 2;
+  pointer-events: none;
+  border: 0 solid var(--wuwa-cyan);
+  opacity: 0.5;
+
+  /* 카드가 hover 때 -3px 떠오르므로 브래킷도 같이 올라가야 한다.
+     안 그러면 브래킷만 제자리에 남아 카드와 어긋나 보인다. */
+  transform: translateY(0);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* border-radius 를 0 으로 둔 두 모서리(좌상·우하)에 맞춘다 */
+#post-list .card-wrapper::before {
+  top: -1px;
+  left: -1px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+#post-list .card-wrapper::after {
+  right: -1px;
+  bottom: -1px;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+}
+
+#post-list .post-preview {
+  /* Chirpy 는 .post-preview::before 반투명 오버레이로 hover 효과를 이미 준다.
+     transform 이 걸리면 그 ::before 의 기준 요소가 바뀌므로 기준을 고정해 둔다. */
+  position: relative;
+
+  /* 시작 상태를 명시. 없으면 마우스를 뗄 때 부자연스럽다. */
+  transform: translateY(0);
+  overflow: hidden; /* 공명 바가 깎인 모서리 밖으로 새지 않게 */
+}
+
+/* 좌측 공명 바 — hover 하면 위에서 아래로 차오른다 */
+#post-list .post-preview::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 0;
+  background: var(--wuwa-cyan);
+  box-shadow: 0 0 10px var(--wuwa-cyan-35);
+  transition: height 0.35s ease;
+}
+
+/* 마우스가 있는 기기에서만. 터치 기기는 hover 가 눌러붙어 안 풀린다.
+   Chirpy 도 _base.scss 에서 같은 패턴을 쓴다. */
 @media (hover: hover) {
   #post-list .post-preview {
-    /* transition은 "한 덩어리" 속성이라 다시 쓰면 기존 값이 통째로 덮어써진다.
-       Chirpy 원래 값인 background-color를 여기 같이 적어서 보존한다(테마 전환 fade). */
+    /* transition 은 "한 덩어리" 속성이라 다시 쓰면 기존 값이 통째로 덮어써진다.
+       Chirpy 원래 값인 background-color 를 여기 같이 적어 보존한다. */
     transition:
       background-color 0.35s ease-in-out,
       transform 0.25s ease,
       box-shadow 0.25s ease;
   }
 
-  #post-list .post-preview:hover {
-    transform: translateY(-4px);
-
-    /* --card-shadow 는 라이트/다크에서 값이 다른 테마 변수.
-       기본 그림자를 유지한 채 "떠오른 만큼"의 그림자만 뒤에 덧댄다. */
+  #post-list .card-wrapper:hover .post-preview {
+    transform: translateY(-3px);
     box-shadow:
-      var(--card-shadow),
-      0 12px 24px rgb(0 0 0 / 10%);
+      0 10px 26px rgb(0 0 0 / 60%),
+      0 0 0 1px var(--wuwa-cyan-35),
+      0 0 22px rgb(79 216 206 / 16%);
+  }
+
+  #post-list .card-wrapper:hover .post-preview::after {
+    height: 100%;
+  }
+
+  #post-list .card-wrapper:hover::before,
+  #post-list .card-wrapper:hover::after {
+    opacity: 1;
+    transform: translateY(-3px);
   }
 }
 
-/* ---- 2) 카드 등장: 아주 약한 fade-up ------------------------------
-   @keyframes = "움직임의 대본"(어떤 상태에서 어떤 상태로 갈지)
-   animation  = 그 대본을 실제로 요소에 트는 것. 둘은 항상 짝으로 쓴다.
+/* Chirpy 는 hover 막(.post-preview::before)을 opacity .3 으로 덮는다.
+   --card-hover-bg 에 시안 원색을 넣었더니 30%는 너무 진해서 본문이 읽히지 않았다.
+   색은 그대로 두고 농도만 낮춘다. */
+#post-list .post-preview:hover::before {
+  opacity: 0.12;
+}
 
-   ⚠ 이름은 반드시 고유하게. Chirpy가 이미 @keyframes fade-up 을 정의해
-   게시글 목차(#toc-wrapper)에 쓰고 있다. 같은 이름을 다시 정의하면
-   나중 것이 앞 것을 통째로 대체해 TOC 등장 방식이 조용히 바뀐다.
-   그래서 post-card- 접두사를 붙였다.
+/* 키보드 포커스에서도 같은 신호를 준다 (마우스가 없는 사용자) */
+#post-list .post-preview:focus-visible::after {
+  height: 100%;
+}
+
+/* ---- 카드 등장: 아주 약한 fade-up ---------------------------------
+   @keyframes = "움직임의 대본", animation = 그 대본을 요소에 트는 것.
+
+   ⚠ 이름은 반드시 고유하게. Chirpy 가 이미 @keyframes fade-up 을 정의해
+   목차(#toc-wrapper)에 쓰고 있다. 같은 이름을 다시 정의하면 나중 것이 앞 것을
+   조용히 대체한다. 그래서 접두사를 붙였다.
 ------------------------------------------------------------------ */
 
 @keyframes post-card-fade-up {
   from {
     opacity: 0;
-    transform: translateY(12px); /* 12px만. 기술 블로그라 읽기를 방해하면 안 된다 */
+    transform: translateY(12px);
   }
 
   to {
@@ -80,64 +798,201 @@
   }
 }
 
-/* hover는 안쪽 <a class="post-preview">, 등장은 바깥 <article class="card-wrapper">.
-   서로 다른 요소에 걸어야 두 transform이 충돌하지 않는다.
-   (한 요소에 두 개를 걸면 나중 것이 앞 것을 덮어쓴다) */
+/* hover 는 안쪽 <a class="post-preview">, 등장은 바깥 <article class="card-wrapper">.
+   서로 다른 요소에 걸어야 두 transform 이 충돌하지 않는다. */
 #post-list .card-wrapper {
   /* both = animation-fill-mode: both.
-     이게 없으면 delay 동안 카드가 최종 모습(opacity:1)으로 멀쩡히 보이다가
-     애니메이션이 시작되는 순간 갑자기 사라졌다 다시 나타나 깜빡인다.
-     both는 "시작 전엔 from 상태를, 끝난 뒤엔 to 상태를 유지하라"는 뜻이다. */
+     이게 없으면 delay 동안 카드가 최종 모습으로 보이다가 시작 순간 깜빡인다. */
   animation: post-card-fade-up 0.4s ease-out both;
 }
 
-/* 카드마다 조금씩 늦게 시작시켜 순서대로 등장하게 한다.
-   _config.yml의 paginate: 10 → 한 페이지에 카드는 최대 10개이므로 10까지면 충분하다.
-   이 SCSS @for 3줄이 컴파일되면 nth-child 규칙 10개로 펼쳐진다.
-   (손으로 20~30개를 쓸 필요가 없는 이유) */
+/* _config.yml 의 paginate: 10 → 한 페이지에 카드는 최대 10개.
+   이 SCSS @for 3줄이 컴파일되면 nth-child 규칙 10개로 펼쳐진다. */
 @for $i from 1 through 10 {
   #post-list .card-wrapper:nth-child(#{$i}) {
     animation-delay: ($i - 1) * 60ms;
   }
 }
 
-/* ---- 3) 태그 목록: 간격을 margin 방식에서 flex gap 방식으로 --------
-   /tags/ 페이지 구조:
-     <div id="tags" class="d-flex flex-wrap">   ← Chirpy가 이미 flex로 만들어 둠
-       <div><a class="tag">git<span>5</span></a></div>
-       <div><a class="tag">…</a></div>
 
-   즉 flex를 새로 켜는 게 아니라, Chirpy가 간격을 만드는 방식을 바꾸는 것이다.
+/* ---- 11) 본문 타이포그래피 ------------------------------------------ */
+
+/* 섹션 제목 앞 마커. h2 는 시안 막대, h3 는 금색 마름모. */
+.content h2 {
+  position: relative;
+  padding-left: 0.85rem;
+}
+
+.content h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.22em;
+  width: 3px;
+  height: 0.85em;
+  background: var(--wuwa-cyan);
+  box-shadow: 0 0 10px var(--wuwa-cyan-35);
+}
+
+.content h3 {
+  position: relative;
+  padding-left: 0.85rem;
+}
+
+.content h3::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 0.45em;
+  width: 6px;
+  height: 6px;
+  background: var(--wuwa-gold);
+  transform: rotate(45deg);
+}
+
+/* 인용 — 왼쪽 시안 선 + 살짝 올라온 면 */
+.content blockquote {
+  border-left: 2px solid var(--wuwa-cyan-35);
+  background: rgb(79 216 206 / 4%);
+  padding: 0.6rem 1rem;
+}
+
+/* 구분선을 음파로. 명조의 "공명" 모티프를 가장 직접적으로 쓰는 자리다. */
+.content hr {
+  height: 12px;
+  border: 0;
+  opacity: 1;
+  background-color: transparent;
+  background-repeat: repeat-x;
+  background-position: center;
+  background-size: 120px 12px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12'%3E%3Cpath d='M0 6h34l5-4 4 8 5-7 4 5 5-2h63' fill='none' stroke='%234fd8ce' stroke-opacity='.45' stroke-width='1.2'/%3E%3C/svg%3E");
+  margin: 2.5rem 0;
+}
+
+/* 표 — 헤더 아래에 시안 밑줄 */
+.content table thead {
+  border-bottom: 1px solid var(--wuwa-cyan-35);
+}
+
+.content table thead th {
+  font-family: var(--wuwa-font-display);
+  letter-spacing: 0.04em;
+  color: var(--wuwa-text-hi);
+}
+
+
+/* ---- 12) 코드 블록 / 프롬프트 ----------------------------------------
+   ⚠ --highlight-bg-color 만 바꾸면 코드 블록 배경이 바뀌지 않는다.
+   구문 강조(rouge) 테마가 배경색을 변수가 아니라 값으로 직접 박아 두기 때문이다.
+     .highlight { background-color: var(--highlight-bg-color) }   ← (0,1,0)
+     :root[data-bs-theme=dark] .highlight { background-color:#151515 }  ← (0,3,0) 승
+   그래서 같은 (0,3,0) 으로 맞춰 뒤에서 다시 덮는다. 미리보기(속성 없음)까지
+   커버하려고 :not() 쪽도 같이 적는다.
+------------------------------------------------------------------ */
+
+:root[data-bs-theme] .highlight,
+:root[data-bs-theme] .highlight .w,
+:root:not([data-bs-theme]) .highlight,
+:root:not([data-bs-theme]) .highlight .w {
+  background-color: var(--wuwa-well);
+  color: var(--wuwa-text);
+}
+
+/* 같은 이유로 박혀 있는 나머지 두 곳.
+   .err 는 예전 배경색(#151515)을 "글자색"으로 쓰고 있어서 새 배경 위에서
+   글자가 사라진다. 잔상 레드로 바꾼다. */
+:root[data-bs-theme] .highlight .gh,
+:root:not([data-bs-theme]) .highlight .gh {
+  background-color: var(--wuwa-well);
+}
+
+:root[data-bs-theme] .highlight .err,
+:root:not([data-bs-theme]) .highlight .err {
+  color: var(--wuwa-red-text);
+}
+
+
+/* Chirpy 는 코드 헤더 왼쪽에 맥OS 창 버튼 같은 회색 점 3개를 그린다
+   (점 하나를 background-color 로, 나머지 둘을 box-shadow 오프셋으로).
+   명조 톤에 맞지 않으므로 시안 막대 하나로 바꾼다. */
+div[class^='language-'] .code-header::before {
+  width: 2px;
+  height: 0.85rem;
+  border-radius: 0;
+  background-color: var(--wuwa-cyan);
+  box-shadow: 0 0 8px var(--wuwa-cyan-35);
+}
+
+.code-header {
+  border-bottom: 1px solid var(--wuwa-line-soft);
+}
+
+/* 언어 라벨 */
+.code-header span.filepath,
+.code-header > span {
+  font-family: var(--wuwa-font-display);
+  letter-spacing: 0.1em;
+}
+
+/* 프롬프트 박스 왼쪽에 의미색 막대. 아이콘 색과 짝을 맞춘다. */
+blockquote[class^='prompt-'] {
+  border-left: 2px solid var(--wuwa-line-soft);
+}
+
+blockquote.prompt-tip {
+  border-left-color: #3fd9a4;
+}
+
+blockquote.prompt-info {
+  border-left-color: #4fb4d8;
+}
+
+blockquote.prompt-warning {
+  border-left-color: var(--wuwa-gold);
+}
+
+blockquote.prompt-danger {
+  border-left-color: var(--wuwa-red);
+}
+
+
+/* ---- 13) 태그 · 카테고리 · 아카이브 ---------------------------------
+   /tags/ 페이지 구조:
+     <div id="tags" class="d-flex flex-wrap">   ← Chirpy 가 이미 flex 로 만들어 둠
+       <div><a class="tag">git<span>5</span></a></div>
+
+   즉 flex 를 새로 켜는 게 아니라, 간격을 만드는 방식을 바꾸는 것이다.
    기존: .tag { margin-right: .8rem; line-height: 3rem }
      → 줄바꿈되면 각 줄 오른쪽 끝에 쓸모없는 여백이 남고,
-       세로 간격을 line-height(글줄 높이)로 억지로 만들고 있다.
-   gap은 "칸과 칸 사이"에만 들어가므로 두 문제가 같이 해결된다.
+       세로 간격을 line-height 로 억지로 만들고 있다.
+   gap 은 "칸과 칸 사이"에만 들어가므로 두 문제가 같이 해결된다.
 ------------------------------------------------------------------ */
 
 #tags {
-  /* 두 값 = 행 간격 0.6rem, 열 간격 0.8rem. 세로/가로를 따로 줄 수 있다. */
+  /* 두 값 = 행 간격 0.6rem, 열 간격 0.8rem */
   gap: 0.6rem 0.8rem;
 }
 
 #tags .tag {
-  /* .tag는 display 지정이 없는 <a> = inline 요소.
-     inline 요소에는 transform이 아예 적용되지 않으므로 hover 효과를 주려면 필수다.
-     (세로 padding이 높이에 반영되지 않던 문제도 같이 해결된다) */
+  /* .tag 는 display 지정이 없는 <a> = inline 요소.
+     inline 요소에는 transform 이 적용되지 않으므로 hover 효과에 필수다. */
   display: inline-block;
 
-  margin-right: 0; /* gap이 대신하므로 해제 */
+  margin-right: 0; /* gap 이 대신하므로 해제 */
   line-height: 1.6; /* 세로 간격을 만들던 3rem 해제 */
+  border: 1px solid var(--wuwa-line);
 }
 
-/* 태그 hover — 카드보다 작은 요소라 움직임도 더 작게(-2px). */
+/* 태그 hover — 카드보다 작은 요소라 움직임도 더 작게(-2px) */
 @media (hover: hover) {
   #tags .tag,
   .post-tags .post-tag {
-    /* Chirpy는 transition을 :hover 안에만 둬서 마우스를 뗄 때는 뚝 끊긴다.
-       기본 상태에 두면 들어올 때와 나갈 때 모두 부드러워진다.
-       background 0.35s는 Chirpy 원래 값이라 그대로 유지. */
+    /* Chirpy 는 transition 을 :hover 안에만 둬서 마우스를 뗄 때는 뚝 끊긴다.
+       기본 상태에 두면 들어올 때와 나갈 때 모두 부드러워진다. */
     transition:
       background 0.35s ease-in-out,
+      box-shadow 0.25s ease,
       transform 0.2s ease;
   }
 
@@ -146,22 +1001,57 @@
     /* transform 하나에 여러 함수를 나열하면 순서대로 적용된다.
        속성을 두 번 쓰면 나중 것이 앞 것을 덮어쓰므로 반드시 한 줄에 적는다. */
     transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 12px rgb(79 216 206 / 20%);
   }
 }
 
-/* ---- 4) 접근성: 움직임 최소화 설정 존중 ----------------------------
-   OS에 "동작 줄이기"를 켠 사용자(전정기관 질환, 멀미, 주의력 문제 등)에게는
+#archives .year {
+  font-family: var(--wuwa-font-display);
+  letter-spacing: 0.12em;
+}
+
+
+/* ---- 14) 페이지네이션 · TOC · 기타 ---------------------------------- */
+
+.pagination .page-item.active .page-link {
+  box-shadow: 0 0 14px rgb(79 216 206 / 30%);
+}
+
+/* TOC 활성 항목 — 사이드바와 같은 신호 체계(왼쪽 시안 막대)를 쓴다 */
+#toc-wrapper ul .toc-link.active {
+  box-shadow: inset 2px 0 0 var(--wuwa-cyan);
+}
+
+#back-to-top {
+  border: 1px solid var(--wuwa-line);
+  transition: box-shadow 0.25s ease;
+}
+
+#back-to-top:hover {
+  box-shadow: 0 0 16px rgb(79 216 206 / 30%);
+}
+
+footer {
+  border-top: 1px solid var(--wuwa-line);
+}
+
+
+/* ---- 15) 접근성: 움직임 최소화 설정 존중 ----------------------------
+   OS 에 "동작 줄이기"를 켠 사용자(전정기관 질환, 멀미, 주의력 문제 등)에게는
    화면이 움직이는 것 자체가 불편하거나 어지럼증을 유발할 수 있다.
 
    흔히 쓰는 * { animation: none !important } 식의 전역 차단은 쓰지 않는다.
-   테마가 원래 갖고 있던 동작(TOC 등장, 사이드바 슬라이드 등)까지 같이 꺼버리는데,
+   테마가 원래 갖고 있던 동작(TOC 등장, 사이드바 슬라이드 등)까지 같이 꺼 버리는데,
    그건 우리가 결정할 문제가 아니다. 우리가 추가한 것만 되돌린다.
 
-   그리고 끄는 것은 "이동"뿐이다. opacity/배경색 fade는 화면이 움직이는 게
-   아니므로 남겨둔다 — reduced motion의 취지에 더 맞다.
+   그리고 끄는 것은 "이동"뿐이다. opacity/배경색 fade 는 화면이 움직이는 게
+   아니므로 남겨 둔다 — reduced motion 의 취지에 더 맞다.
 
-   아래 selector는 위에서 쓴 것과 특이도(specificity)가 같지만,
-   파일에서 나중에 나오므로 이긴다. → !important 불필요.
+   ⚠ transform: none 은 가상요소까지 내려가지 않는다. 카드의 공명 바처럼
+   가상요소에 건 움직임은 반드시 이름을 따로 적어야 한다.
+
+   아래 selector 는 위에서 쓴 것과 특이도가 같지만 파일에서 나중에 나오므로
+   이긴다. → !important 불필요. 이 섹션이 항상 마지막이어야 하는 이유다.
 ------------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -171,13 +1061,25 @@
     animation: none;
   }
 
-  /* hover의 "떠오름"만 제거. 그림자와 배경 fade는 그대로 둔다. */
+  /* hover 의 "떠오름"만 제거. 그림자와 배경 fade 는 그대로 둔다.
+     카드 모서리 브래킷은 가상요소라 부모의 transform: none 이 내려가지 않는다.
+     이름을 따로 적어야 하는 이유다. */
+  #post-list .card-wrapper::before,
+  #post-list .card-wrapper::after,
+  #post-list .card-wrapper:hover::before,
+  #post-list .card-wrapper:hover::after,
   #post-list .post-preview,
-  #post-list .post-preview:hover,
+  #post-list .card-wrapper:hover .post-preview,
   #tags .tag,
   #tags .tag:hover,
   .post-tags .post-tag,
   .post-tags .post-tag:hover {
     transform: none;
+  }
+
+  /* 공명 바는 "차오르는" 대신 즉시 나타난다.
+     정보(어느 카드를 가리키는가)는 남기고 움직임만 없앤다. */
+  #post-list .post-preview::after {
+    transition: none;
   }
 }
