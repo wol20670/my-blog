@@ -67,35 +67,46 @@
      라이트 선호 사용자가 들어와도 흰 스크롤바가 튀지 않는다. */
   color-scheme: dark;
 
-  /* 바탕 — 먹빛 남색. 완전한 검정(#000)은 쓰지 않는다.
-     글자 경계가 번져 보이고, 그림자로 층을 만들 수 없기 때문이다. */
-  --wuwa-ink: #0b0f13;
-  --wuwa-bg: #0e1317;
-  --wuwa-surface: #141b20;
-  --wuwa-surface-2: #1a2329;
-  --wuwa-well: #090d10;
+  /* 바탕 — 실제 게임 UI 스크린샷의 픽셀을 세어서 정한 값이다.
+     터미널(메뉴) 화면 상위 색: #000000 33.8%, #101010 13.2%, #102020 9.3%,
+     #101020 6.3%, #202020 5.5% — 즉 푸른 기가 거의 없는 "중성 검정"이다.
+     이전 버전의 남색(#0e1317) 바탕은 인상만으로 잡은 오판이었고,
+     그래서 명조가 아니라 일반적인 사이버펑크처럼 보였다.
 
-  /* 글자 — 대비는 WCAG AA(4.5:1) 이상을 지킨다.
-     muted 를 #6e7b82 로 잡았다가 카드 위에서 3.99:1 로 떨어져 올렸다.
-     .post-meta 가 카드(--wuwa-surface) 위에 얹히기 때문이다. */
-  --wuwa-text: #b9c2c6;
-  --wuwa-text-hi: #e6edf0;
-  --wuwa-muted: #8a969d;
-  --wuwa-muted-hi: #aebbc2;
+     패널은 불투명한 색이 아니라 검정 위에 아주 옅게 얹은 흰 막이다.
+     게임 UI의 패널이 전부 반투명이라 그 층위를 그대로 옮긴다. */
+  --wuwa-black: #060607;
+  --wuwa-bg: #0a0a0b;
+  --wuwa-surface: rgb(255 255 255 / 3.5%);
+  --wuwa-surface-2: rgb(255 255 255 / 7%);
+  --wuwa-well: #050506;
 
-  /* 강조 — 시안(공명)과 금색(황룡). 잔상 레드는 경고에만. */
-  --wuwa-cyan: #4fd8ce;
-  --wuwa-cyan-dim: #2e8f89;
-  --wuwa-cyan-08: rgb(79 216 206 / 8%);
-  --wuwa-cyan-18: rgb(79 216 206 / 18%);
-  --wuwa-cyan-35: rgb(79 216 206 / 35%);
-  --wuwa-gold: #d9b26a;
-  --wuwa-red: #e24b3b;
+  /* 글자 — 차가운 회색이 아니라 따뜻한 뼈색 흰색이다.
+     대비는 WCAG AA(4.5:1) 이상. muted 는 바탕 위 6.7:1. */
+  --wuwa-text: #d8d3c9;
+  --wuwa-text-hi: #f0ece4;
+  --wuwa-muted: #9b958a;
+  --wuwa-muted-hi: #bdb7ab;
+
+  /* 강조는 금색 하나다.
+     게임 UI에서 라벨(Birthday / SOL3 Phase / Union Level), 선택 표시,
+     수치 강조, 코너 브래킷이 전부 금색이다. 시안은 UI 크롬에 존재하지 않고
+     속성 아이콘 색으로만 쓰인다 — 그래서 여기서는 아예 쓰지 않는다. */
+  --wuwa-accent: #c8a972;
+  --wuwa-accent-hi: #e3c78b;
+  --wuwa-accent-dim: #8a7448;
+  --wuwa-accent-08: rgb(200 169 114 / 8%);
+  --wuwa-accent-18: rgb(200 169 114 / 18%);
+  --wuwa-accent-35: rgb(200 169 114 / 35%);
+  --wuwa-gold: var(--wuwa-accent);
+  --wuwa-red: #e0503e;
   --wuwa-red-text: #f2705f;
 
-  /* 선과 빛 */
-  --wuwa-line: rgb(79 216 206 / 22%);
-  --wuwa-line-soft: rgb(140 160 170 / 14%);
+  /* 선 — 기본 구조선은 뼈색 저알파, 금색 선은 "선택됨"에만 쓴다.
+     게임 UI가 정확히 이 두 단계로만 선을 쓴다. */
+  --wuwa-line: rgb(232 228 220 / 13%);
+  --wuwa-line-soft: rgb(232 228 220 / 7%);
+  --wuwa-line-gold: rgb(200 169 114 / 45%);
 
   /* 모따기 크기. 컴포넌트에서 이 값만 다시 정의하면 모양이 따라온다. */
   --wuwa-cut: 14px;
@@ -126,7 +137,7 @@
   --main-border-color: var(--wuwa-line-soft);
   /* ⚠ --mask-bg 는 모바일에서 사이드바를 열 때 본문을 덮는 막이다.
      새까맣게 만들면 페이지가 죽은 것처럼 보인다. 반투명 유지. */
-  --mask-bg: rgb(5 8 10 / 72%);
+  --mask-bg: rgb(0 0 0 / 78%);
 
   /* 글자 */
   --text-color: var(--wuwa-text);
@@ -136,10 +147,10 @@
   --text-muted-highlight-color: var(--wuwa-muted-hi);
   --heading-color: var(--wuwa-text-hi);
   --label-color: var(--wuwa-muted-hi);
-  --blockquote-border-color: var(--wuwa-cyan-35);
+  --blockquote-border-color: var(--wuwa-accent-35);
   --blockquote-text-color: var(--wuwa-muted);
-  --link-color: var(--wuwa-cyan);
-  --link-underline-color: var(--wuwa-cyan-35);
+  --link-color: var(--wuwa-accent);
+  --link-underline-color: var(--wuwa-accent-35);
 
   /* 버튼.
      --checkbox-checked-color 와 --btn-backtotop-color 는 각각
@@ -153,50 +164,50 @@
 
   /* ⚠ --img-bg 와 --shimmer-bg 는 색이 아니라 그라디언트다.
      단색을 넣으면 이미지 로딩 시 반짝이는 효과가 조용히 사라진다. */
-  --img-bg: radial-gradient(circle, #10171c 0%, #0a0e12 100%);
+  --img-bg: radial-gradient(circle, #131313 0%, #070707 100%);
   --shimmer-bg: linear-gradient(
     90deg,
-    rgb(79 216 206 / 0%) 0%,
-    rgb(79 216 206 / 10%) 50%,
-    rgb(79 216 206 / 0%) 100%
+    rgb(200 169 114 / 0%) 0%,
+    rgb(200 169 114 / 10%) 50%,
+    rgb(200 169 114 / 0%) 100%
   );
 
   /* 드롭다운 */
   --menu-bg: var(--wuwa-surface-2);
   --menu-border-color: var(--wuwa-line);
   --menu-shadow-color: rgb(0 0 0 / 60%);
-  --menu-active-color: var(--wuwa-cyan);
-  --menu-highlight-bg: var(--wuwa-cyan-08);
+  --menu-active-color: var(--wuwa-accent);
+  --menu-highlight-bg: var(--wuwa-accent-08);
 
   /* 사이드바 */
   --site-title-color: var(--wuwa-text-hi);
   --site-subtitle-color: var(--wuwa-muted);
   /* #sidebar 는 background 단축속성을 쓰므로 그라디언트를 넣을 수 있다 */
-  --sidebar-bg: linear-gradient(180deg, #121a1f 0%, #0c1115 100%);
+  --sidebar-bg: linear-gradient(180deg, #0d0d0e 0%, #060607 100%);
   --sidebar-border-color: var(--wuwa-line-soft);
   --sidebar-muted-color: var(--wuwa-muted);
-  --sidebar-active-color: var(--wuwa-cyan);
-  --sidebar-hover-bg: var(--wuwa-cyan-08);
+  --sidebar-active-color: var(--wuwa-accent);
+  --sidebar-hover-bg: var(--wuwa-accent-08);
   --sidebar-btn-bg: var(--wuwa-surface-2);
   --sidebar-btn-color: var(--wuwa-muted);
-  /* 아바타 테두리는 box-shadow 로 그려진다 → 변수만 바꿔도 시안 링이 생긴다 */
-  --avatar-border-color: var(--wuwa-cyan);
+  /* 아바타 테두리는 box-shadow 로 그려진다 → 변수만 바꿔도 금색 링이 생긴다 */
+  --avatar-border-color: var(--wuwa-accent);
 
   /* 상단바 — ⚠ 반투명을 유지해야 한다. #topbar-wrapper 에 backdrop-filter 가
      걸려 있어서 불투명하게 만들면 유리 효과가 통째로 사라진다. */
-  --topbar-bg: rgb(14 19 23 / 72%);
+  --topbar-bg: rgb(10 10 11 / 72%);
   --topbar-text-color: var(--wuwa-text);
   --search-border-color: var(--wuwa-line);
-  --search-icon-color: var(--wuwa-cyan-dim);
-  --input-focus-border-color: var(--wuwa-cyan);
+  --search-icon-color: var(--wuwa-accent-dim);
+  --input-focus-border-color: var(--wuwa-accent);
   --search-tag-bg: var(--wuwa-surface-2);
 
   /* 카드 — 이 파일에서 이득이 가장 큰 두 줄 */
   --card-bg: var(--wuwa-surface);
   /* ⚠ --card-hover-bg 는 "배경"이 아니라 .post-preview::before 에 opacity .3 으로
      덮이는 "막"이다. 어두운 색을 넣으면 hover 가 고장 난 것처럼 보인다.
-     시안 원색을 넣어야 30% 농도의 공명 물결이 된다. */
-  --card-hover-bg: var(--wuwa-cyan);
+     금색 원색을 넣어야 30% 농도의 공명 물결이 된다. */
+  --card-hover-bg: var(--wuwa-accent);
   /* ⚠ --card-shadow 는 2겹이고 둘째 겹(0 0 0 1px)은 그림자가 아니라 카드의
      1px 테두리다. 한 겹으로 바꾸면 모든 카드의 테두리가 사라진다.
      → 공짜로 얻는 발광 해어라인. */
@@ -208,20 +219,20 @@
   --btn-patinator-text-color: var(--wuwa-muted);
 
   /* TOC · 태그 · 표. --tb-border-color 는 --tb-odd-bg 별칭. */
-  --toc-highlight: var(--wuwa-cyan);
+  --toc-highlight: var(--wuwa-accent);
   --toc-popup-border-color: var(--wuwa-line);
-  --tag-hover: var(--wuwa-cyan-18);
+  --tag-hover: var(--wuwa-accent-18);
   --tag-border: var(--wuwa-line);
   --tag-shadow: transparent;
-  --tb-odd-bg: #131a1f;
-  --tb-even-bg: #0f161a;
+  --tb-odd-bg: #121212;
+  --tb-even-bg: #0c0c0d;
   --dash-color: var(--wuwa-line-soft);
-  --footnote-target-bg: var(--wuwa-cyan-18);
+  --footnote-target-bg: var(--wuwa-accent-18);
   --btn-share-color: var(--wuwa-muted);
-  --btn-share-hover-color: var(--wuwa-cyan);
+  --btn-share-hover-color: var(--wuwa-accent);
 
   /* ⚠ prompt 4종은 의미(팁/정보/경고/위험)를 담고 있다.
-     전부 시안으로 통일하면 신호가 죽는다. 색조만 옮기고 구분은 남긴다. */
+     전부 금색으로 통일하면 신호가 죽는다. 색조만 옮기고 구분은 남긴다. */
   --prompt-text-color: var(--wuwa-text);
   --prompt-tip-bg: rgb(23 62 56 / 60%);
   --prompt-tip-icon-color: #3fd9a4;
@@ -234,18 +245,18 @@
 
   /* 카테고리 · 아카이브 */
   --categories-border: var(--wuwa-line-soft);
-  --categories-hover-bg: var(--wuwa-cyan-08);
-  --categories-icon-hover-color: var(--wuwa-cyan);
-  --timeline-node-bg: var(--wuwa-cyan);
+  --categories-hover-bg: var(--wuwa-accent-08);
+  --categories-icon-hover-color: var(--wuwa-accent);
+  --timeline-node-bg: var(--wuwa-accent);
   --timeline-color: var(--wuwa-line-soft);
 
   /* 코드 — ⚠ --highlight-bg-color 는 --main-bg 보다 "더 어두워야" 한다.
      코드 블록이 한 단 파인 것처럼 보이는 이 관계가 가독성을 만든다. */
   --language-border-color: var(--wuwa-line-soft);
   --highlight-bg-color: var(--wuwa-well);
-  --highlight-lineno-color: #55636b;
-  --highlighter-rouge-color: var(--wuwa-cyan);
-  --inline-code-bg: var(--wuwa-cyan-08);
+  --highlight-lineno-color: #5f5a52;
+  --highlighter-rouge-color: var(--wuwa-accent);
+  --inline-code-bg: var(--wuwa-accent-08);
   --code-color: var(--wuwa-text);
   --code-header-text-color: var(--wuwa-muted);
   --code-header-muted-color: var(--wuwa-line-soft);
@@ -261,11 +272,11 @@
   --bs-body-color: var(--wuwa-text);
   --bs-emphasis-color: var(--wuwa-text-hi);
   --bs-heading-color: var(--wuwa-text-hi);
-  --bs-link-color: var(--wuwa-cyan);
-  --bs-link-hover-color: #7fe8e0;
+  --bs-link-color: var(--wuwa-accent);
+  --bs-link-hover-color: #e3c78b;
   --bs-border-color: var(--wuwa-line-soft);
-  --bs-secondary-bg: #131a1f;
-  --bs-tertiary-bg: #0f161a;
+  --bs-secondary-bg: #121212;
+  --bs-tertiary-bg: #0c0c0d;
   --bs-body-font-family: var(--wuwa-font-body);
   --bs-font-sans-serif: var(--wuwa-font-body);
 }
@@ -282,15 +293,15 @@
   --bs-pagination-color: var(--wuwa-muted);
   --bs-pagination-bg: transparent;
   --bs-pagination-border-color: transparent;
-  --bs-pagination-hover-color: var(--wuwa-cyan);
-  --bs-pagination-hover-bg: var(--wuwa-cyan-08);
+  --bs-pagination-hover-color: var(--wuwa-accent);
+  --bs-pagination-hover-bg: var(--wuwa-accent-08);
   --bs-pagination-hover-border-color: var(--wuwa-line);
-  --bs-pagination-focus-color: var(--wuwa-cyan);
-  --bs-pagination-focus-bg: var(--wuwa-cyan-08);
-  --bs-pagination-focus-box-shadow: 0 0 0 0.2rem var(--wuwa-cyan-18);
-  --bs-pagination-active-color: var(--wuwa-ink);
-  --bs-pagination-active-bg: var(--wuwa-cyan);
-  --bs-pagination-active-border-color: var(--wuwa-cyan);
+  --bs-pagination-focus-color: var(--wuwa-accent);
+  --bs-pagination-focus-bg: var(--wuwa-accent-08);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.2rem var(--wuwa-accent-18);
+  --bs-pagination-active-color: var(--wuwa-black);
+  --bs-pagination-active-bg: var(--wuwa-accent);
+  --bs-pagination-active-border-color: var(--wuwa-accent);
   --bs-pagination-disabled-color: var(--wuwa-line-soft);
   --bs-pagination-disabled-bg: transparent;
   --bs-pagination-disabled-border-color: transparent;
@@ -301,19 +312,19 @@
   --bs-dropdown-color: var(--wuwa-text);
   --bs-dropdown-border-color: var(--wuwa-line);
   --bs-dropdown-link-color: var(--wuwa-text);
-  --bs-dropdown-link-hover-color: var(--wuwa-cyan);
-  --bs-dropdown-link-hover-bg: var(--wuwa-cyan-08);
-  --bs-dropdown-link-active-color: var(--wuwa-ink);
-  --bs-dropdown-link-active-bg: var(--wuwa-cyan);
+  --bs-dropdown-link-hover-color: var(--wuwa-accent);
+  --bs-dropdown-link-hover-bg: var(--wuwa-accent-08);
+  --bs-dropdown-link-active-color: var(--wuwa-black);
+  --bs-dropdown-link-active-bg: var(--wuwa-accent);
 }
 
 .list-group {
   --bs-list-group-bg: transparent;
   --bs-list-group-color: var(--wuwa-text);
   --bs-list-group-border-color: var(--wuwa-line-soft);
-  --bs-list-group-active-color: var(--wuwa-ink);
-  --bs-list-group-active-bg: var(--wuwa-cyan);
-  --bs-list-group-active-border-color: var(--wuwa-cyan);
+  --bs-list-group-active-color: var(--wuwa-black);
+  --bs-list-group-active-bg: var(--wuwa-accent);
+  --bs-list-group-active-border-color: var(--wuwa-accent);
 }
 
 .card {
@@ -342,8 +353,8 @@ footer a:hover,
 #topbar #breadcrumb a:hover,
 .post-meta a:not([class]):hover,
 .content a:not(.img-link):hover {
-  color: var(--wuwa-cyan) !important;
-  border-bottom-color: var(--wuwa-cyan);
+  color: var(--wuwa-accent) !important;
+  border-bottom-color: var(--wuwa-accent);
 }
 
 /* 아카이브 목록 홀수 줄에 흰색 그라디언트가 그려져 있다 */
@@ -352,16 +363,16 @@ footer a:hover,
   background-image: linear-gradient(
     to left,
     transparent,
-    rgb(79 216 206 / 4%),
-    rgb(79 216 206 / 4%),
+    rgb(200 169 114 / 4%),
+    rgb(200 169 114 / 4%),
     transparent
   );
 }
 
-/* 타임라인 점의 흐린 후광(#c2c6cc) → 시안 발광 */
+/* 타임라인 점의 흐린 후광(#c2c6cc) → 금색 발광 */
 #archives .year::after,
 #archives a::before {
-  box-shadow: 0 0 6px 0 var(--wuwa-cyan-35);
+  box-shadow: 0 0 6px 0 var(--wuwa-accent-35);
 }
 
 /* 카테고리 접기 버튼 — 원본이 !important 라 같이 써야 한다 */
@@ -383,10 +394,10 @@ footer a:hover,
   color: var(--wuwa-muted);
 }
 
-/* 카테고리/태그 페이지의 회색 글머리 → 시안 마름모 */
+/* 카테고리/태그 페이지의 회색 글머리 → 금색 마름모 */
 #page-category ul > li::before,
 #page-tag ul > li::before {
-  background: var(--wuwa-cyan);
+  background: var(--wuwa-accent);
   transform: rotate(45deg);
 }
 
@@ -398,8 +409,8 @@ footer a:hover,
 
 /* 검색창 포커스가 부트스트랩 기본 파랑으로 뜬다 */
 .form-control:focus {
-  border-color: var(--wuwa-cyan);
-  box-shadow: 0 0 0 0.2rem var(--wuwa-cyan-18);
+  border-color: var(--wuwa-accent);
+  box-shadow: 0 0 0 0.2rem var(--wuwa-accent-18);
 }
 
 
@@ -520,7 +531,7 @@ search {
    !important 없이는 못 이긴다. 원형을 깨고 육각형에 가까운 각진 형태로. */
 #sidebar #avatar.rounded-circle {
   border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut) !important;
-  box-shadow: var(--wuwa-cyan) 0 0 0 2px, 0 0 18px rgb(79 216 206 / 25%);
+  box-shadow: var(--wuwa-accent) 0 0 0 2px, 0 0 18px rgb(200 169 114 / 25%);
 }
 
 @supports (corner-shape: bevel) {
@@ -531,12 +542,14 @@ search {
 
 
 /* ---- 7) 전역 연출 ---------------------------------------------------
-   배경 격자 + 상단 공명 광. 이게 "인터페이스를 보고 있다"는 인상을 만든다.
+   ⚠ 이전 버전에는 화면 전체에 72px 격자를 깔았는데, 그게 이 테마가
+   "명조가 아니라 사이버펑크"로 읽히던 가장 큰 원인이었다.
+   실제 게임 UI에는 화면을 덮는 격자·스캔라인 패턴이 없다.
+   대신 어두운 막 + 가장자리 비네팅 + 아주 옅은 따뜻한 빛이 전부다.
 
    body::before 를 쓰는 이유: background-attachment: fixed 는 iOS Safari 에서
    스크롤 리페인트가 심하다. 고정 가상요소가 같은 결과를 훨씬 싸게 낸다.
    z-index: -1 이면 본문 뒤로 가되 캔버스 배경보다는 위에 그려진다.
-   opacity 를 올리면 본문 대비가 실제로 떨어지므로 낮게 유지한다.
 ------------------------------------------------------------------ */
 
 body::before {
@@ -546,22 +559,21 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(var(--wuwa-line-soft) 1px, transparent 1px),
-    linear-gradient(90deg, var(--wuwa-line-soft) 1px, transparent 1px),
-    radial-gradient(120% 55% at 50% 0%, rgb(79 216 206 / 7%) 0%, transparent 65%);
-  background-size: 72px 72px, 72px 72px, 100% 100%;
-  opacity: 0.55;
+    /* 상단에서 내려오는 아주 옅은 따뜻한 빛 */
+    radial-gradient(140% 60% at 50% -10%, rgb(200 169 114 / 5%) 0%, transparent 60%),
+    /* 가장자리 비네팅 — 중앙의 글을 향해 시선을 모은다 */
+    radial-gradient(120% 90% at 50% 45%, transparent 45%, rgb(0 0 0 / 55%) 100%);
 }
 
 ::selection {
-  background: var(--wuwa-cyan-35);
+  background: var(--wuwa-accent-35);
   color: var(--wuwa-text-hi);
 }
 
 /* 스크롤바. #sidebar 와 #toc-wrapper 는 Chirpy가 일부러 숨겨 두었으므로 건드리지 않는다. */
 html {
   scrollbar-width: thin;
-  scrollbar-color: var(--wuwa-cyan-dim) var(--wuwa-ink);
+  scrollbar-color: var(--wuwa-accent-dim) var(--wuwa-black);
 }
 
 body::-webkit-scrollbar {
@@ -569,12 +581,12 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-  background: var(--wuwa-ink);
+  background: var(--wuwa-black);
 }
 
 body::-webkit-scrollbar-thumb {
-  background: var(--wuwa-cyan-dim);
-  border: 2px solid var(--wuwa-ink);
+  background: var(--wuwa-accent-dim);
+  border: 2px solid var(--wuwa-black);
 }
 
 /* 포커스 표시. Chirpy 가 .nav-link:focus-visible { outline: 0 } 으로 지워 두어
@@ -584,7 +596,7 @@ button:focus-visible,
 input:focus-visible,
 .nav-link:focus-visible,
 #post-list .post-preview:focus-visible {
-  outline: 2px solid var(--wuwa-cyan);
+  outline: 2px solid var(--wuwa-accent);
   outline-offset: 2px;
 }
 
@@ -603,20 +615,49 @@ input:focus-visible,
   letter-spacing: 0.04em;
 }
 
+/* 제목 앞 금색 마름모.
+   게임 메뉴의 "Terminal" 제목 앞에 붙는 작은 금색 문양과 같은 역할이다.
+   명조 UI는 이런 작은 마름모/브래킷으로 위계를 표시하지 큰 장식을 쓰지 않는다. */
+#sidebar .site-title::before {
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-right: 0.55rem;
+  vertical-align: middle;
+  background: var(--wuwa-accent);
+  transform: rotate(45deg);
+}
+
+/* 우측 패널 제목(최근 업데이트 / 인기 태그)도 같은 라벨 문법으로.
+   금색 작은 글씨 + 아래로 길게 빠지는 얇은 금색 선. */
+#panel-wrapper .panel-heading {
+  font-family: var(--wuwa-font-display);
+  letter-spacing: 0.08em;
+  color: var(--wuwa-accent);
+  border-bottom: 1px solid var(--wuwa-line-gold);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
 #sidebar .site-subtitle {
   font-size: 88%;
   letter-spacing: 0.02em;
 }
 
-/* 메뉴 목록 위에 게임 UI 스타일 라벨을 하나 세운다 */
+/* 메뉴 목록 위 섹션 라벨.
+   게임 UI의 라벨은 "금색 작은 글씨 + 그 아래 얇은 금색 선" 형태다.
+   선을 라벨 폭이 아니라 패널 폭으로 길게 빼는 것이 그쪽 문법이다. */
 #sidebar ul::before {
   content: 'NAVIGATION';
   display: block;
-  margin: 0 0 0.75rem 1.5rem;
+  margin: 0 1.5rem 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--wuwa-line-gold);
   font-family: var(--wuwa-font-display);
   font-size: 0.68rem;
   letter-spacing: 0.28em;
-  color: var(--wuwa-cyan-dim);
+  color: var(--wuwa-accent);
 }
 
 /* 활성/hover 표시는 가상요소 대신 inset box-shadow 로 그린다.
@@ -628,11 +669,11 @@ input:focus-visible,
 }
 
 #sidebar ul li.nav-item a.nav-link:hover {
-  box-shadow: inset 2px 0 0 var(--wuwa-cyan-35);
+  box-shadow: inset 2px 0 0 var(--wuwa-accent-35);
 }
 
 #sidebar ul li.nav-item.active a.nav-link {
-  box-shadow: inset 2px 0 0 var(--wuwa-cyan), 0 0 14px rgb(79 216 206 / 12%);
+  box-shadow: inset 2px 0 0 var(--wuwa-accent), 0 0 14px rgb(200 169 114 / 12%);
 }
 
 /* 토글이 사라진 자리 보정 */
@@ -655,6 +696,16 @@ input:focus-visible,
 
 search {
   border-color: var(--wuwa-line);
+}
+
+/* 게임 UI의 정보 표기는 일관되게 "금색 라벨 + 뼈색 값"이다
+   (Birthday / SOL3 Phase / Union Level 행이 전부 그 형태다).
+   블로그에서 라벨 역할을 하는 건 .post-meta 의 달력·폴더 아이콘이므로
+   아이콘만 금색으로 두고 글자는 값 쪽 색을 유지한다. */
+.post-meta i,
+.post-tail-wrapper .post-meta i {
+  color: var(--wuwa-accent);
+  opacity: 0.8;
 }
 
 
@@ -688,7 +739,7 @@ search {
   height: 14px;
   z-index: 2;
   pointer-events: none;
-  border: 0 solid var(--wuwa-cyan);
+  border: 0 solid var(--wuwa-accent);
   opacity: 0.5;
 
   /* 카드가 hover 때 -3px 떠오르므로 브래킷도 같이 올라가야 한다.
@@ -730,8 +781,8 @@ search {
   left: 0;
   width: 2px;
   height: 0;
-  background: var(--wuwa-cyan);
-  box-shadow: 0 0 10px var(--wuwa-cyan-35);
+  background: var(--wuwa-accent);
+  box-shadow: 0 0 10px var(--wuwa-accent-35);
   transition: height 0.35s ease;
 }
 
@@ -751,8 +802,8 @@ search {
     transform: translateY(-3px);
     box-shadow:
       0 10px 26px rgb(0 0 0 / 60%),
-      0 0 0 1px var(--wuwa-cyan-35),
-      0 0 22px rgb(79 216 206 / 16%);
+      0 0 0 1px var(--wuwa-accent-35),
+      0 0 22px rgb(200 169 114 / 16%);
   }
 
   #post-list .card-wrapper:hover .post-preview::after {
@@ -767,7 +818,7 @@ search {
 }
 
 /* Chirpy 는 hover 막(.post-preview::before)을 opacity .3 으로 덮는다.
-   --card-hover-bg 에 시안 원색을 넣었더니 30%는 너무 진해서 본문이 읽히지 않았다.
+   --card-hover-bg 에 금색 원색을 넣었더니 30%는 너무 진해서 본문이 읽히지 않았다.
    색은 그대로 두고 농도만 낮춘다. */
 #post-list .post-preview:hover::before {
   opacity: 0.12;
@@ -817,7 +868,7 @@ search {
 
 /* ---- 11) 본문 타이포그래피 ------------------------------------------ */
 
-/* 섹션 제목 앞 마커. h2 는 시안 막대, h3 는 금색 마름모. */
+/* 섹션 제목 앞 마커. h2 는 금색 막대, h3 는 금색 마름모. */
 .content h2 {
   position: relative;
   padding-left: 0.85rem;
@@ -830,8 +881,8 @@ search {
   top: 0.22em;
   width: 3px;
   height: 0.85em;
-  background: var(--wuwa-cyan);
-  box-shadow: 0 0 10px var(--wuwa-cyan-35);
+  background: var(--wuwa-accent);
+  box-shadow: 0 0 10px var(--wuwa-accent-35);
 }
 
 .content h3 {
@@ -850,10 +901,10 @@ search {
   transform: rotate(45deg);
 }
 
-/* 인용 — 왼쪽 시안 선 + 살짝 올라온 면 */
+/* 인용 — 왼쪽 금색 선 + 살짝 올라온 면 */
 .content blockquote {
-  border-left: 2px solid var(--wuwa-cyan-35);
-  background: rgb(79 216 206 / 4%);
+  border-left: 2px solid var(--wuwa-accent-35);
+  background: rgb(200 169 114 / 4%);
   padding: 0.6rem 1rem;
 }
 
@@ -866,13 +917,13 @@ search {
   background-repeat: repeat-x;
   background-position: center;
   background-size: 120px 12px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12'%3E%3Cpath d='M0 6h34l5-4 4 8 5-7 4 5 5-2h63' fill='none' stroke='%234fd8ce' stroke-opacity='.45' stroke-width='1.2'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12'%3E%3Cpath d='M0 6h34l5-4 4 8 5-7 4 5 5-2h63' fill='none' stroke='%23c8a972' stroke-opacity='.45' stroke-width='1.2'/%3E%3C/svg%3E");
   margin: 2.5rem 0;
 }
 
-/* 표 — 헤더 아래에 시안 밑줄 */
+/* 표 — 헤더 아래에 금색 밑줄 */
 .content table thead {
-  border-bottom: 1px solid var(--wuwa-cyan-35);
+  border-bottom: 1px solid var(--wuwa-accent-35);
 }
 
 .content table thead th {
@@ -915,13 +966,13 @@ search {
 
 /* Chirpy 는 코드 헤더 왼쪽에 맥OS 창 버튼 같은 회색 점 3개를 그린다
    (점 하나를 background-color 로, 나머지 둘을 box-shadow 오프셋으로).
-   명조 톤에 맞지 않으므로 시안 막대 하나로 바꾼다. */
+   명조 톤에 맞지 않으므로 금색 막대 하나로 바꾼다. */
 div[class^='language-'] .code-header::before {
   width: 2px;
   height: 0.85rem;
   border-radius: 0;
-  background-color: var(--wuwa-cyan);
-  box-shadow: 0 0 8px var(--wuwa-cyan-35);
+  background-color: var(--wuwa-accent);
+  box-shadow: 0 0 8px var(--wuwa-accent-35);
 }
 
 .code-header {
@@ -1001,7 +1052,7 @@ blockquote.prompt-danger {
     /* transform 하나에 여러 함수를 나열하면 순서대로 적용된다.
        속성을 두 번 쓰면 나중 것이 앞 것을 덮어쓰므로 반드시 한 줄에 적는다. */
     transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 12px rgb(79 216 206 / 20%);
+    box-shadow: 0 0 12px rgb(200 169 114 / 20%);
   }
 }
 
@@ -1014,12 +1065,12 @@ blockquote.prompt-danger {
 /* ---- 14) 페이지네이션 · TOC · 기타 ---------------------------------- */
 
 .pagination .page-item.active .page-link {
-  box-shadow: 0 0 14px rgb(79 216 206 / 30%);
+  box-shadow: 0 0 14px rgb(200 169 114 / 30%);
 }
 
-/* TOC 활성 항목 — 사이드바와 같은 신호 체계(왼쪽 시안 막대)를 쓴다 */
+/* TOC 활성 항목 — 사이드바와 같은 신호 체계(왼쪽 금색 막대)를 쓴다 */
 #toc-wrapper ul .toc-link.active {
-  box-shadow: inset 2px 0 0 var(--wuwa-cyan);
+  box-shadow: inset 2px 0 0 var(--wuwa-accent);
 }
 
 #back-to-top {
@@ -1028,7 +1079,7 @@ blockquote.prompt-danger {
 }
 
 #back-to-top:hover {
-  box-shadow: 0 0 16px rgb(79 216 206 / 30%);
+  box-shadow: 0 0 16px rgb(200 169 114 / 30%);
 }
 
 footer {
