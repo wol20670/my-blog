@@ -1323,13 +1323,23 @@ footer {
 
 /* ── 상단바 HUD 판독값 ───────────────────────────────────────── */
 
+/* 좁은 화면에서는 상단바에 자리가 없어 숨긴다.
+   Bootstrap 유틸리티(d-none/d-lg-inline-flex)를 쓰지 않는 이유는 topbar.html
+   주석에 적어 두었다 — Chirpy 번들에 그 클래스가 없어서 요소가 통째로 사라졌다. */
 .wuwa-hud {
-  align-items: baseline;
-  gap: 0.45rem;
-  margin-left: auto;
-  margin-right: 1.25rem;
-  font-family: var(--wuwa-font-display);
-  white-space: nowrap;
+  display: none;
+}
+
+@media (min-width: 850px) {
+  .wuwa-hud {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-left: auto;
+    margin-right: 1.25rem;
+    font-family: var(--wuwa-font-display);
+    white-space: nowrap;
+  }
 }
 
 .wuwa-hud__label {
