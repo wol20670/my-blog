@@ -1,0 +1,172 @@
+---
+layout: default
+---
+
+<!--
+  명조 "공명자 선택" 화면 구조의 홈.
+
+  이 파일은 Chirpy v7.6.0 의 _layouts/home.html 을 덮어쓴 것이다.
+  Jekyll 은 사이트 소스의 같은 경로 파일을 gem 보다 먼저 쓴다.
+  위쪽 고정글(pin) 계산 로직은 원본 그대로 두었다 — 페이지네이션과 얽혀 있어
+  건드리면 조용히 어긋난다.
+
+  설계에서 가장 중요한 결정:
+  타일을 <button> 이 아니라 진짜 <a href> 로 둔다.
+    · JS 가 없어도 그냥 글로 가는 링크로 동작한다
+    · 크롤러와 스크린 리더가 목록을 그대로 읽는다
+    · 좁은 화면에서는 상세 칸을 숨기고 링크 목록으로만 쓴다
+  데스크톱 + JS 에서만 클릭을 가로채 오른쪽 상세를 바꾼다(점진적 향상).
+-->
+
+{% include lang.html %}
+
+{% assign all_pinned = site.posts | where: 'pin', 'true' %}
+{% assign all_normal = site.posts | where_exp: 'item', 'item.pin != true and item.hidden != true' %}
+
+{% assign posts = '' | split: '' %}
+
+<!-- Get pinned posts on current page -->
+
+{% assign visible_start = paginator.page | minus: 1 | times: paginator.per_page %}
+{% assign visible_end = visible_start | plus: paginator.per_page %}
+
+{% if all_pinned.size > visible_start %}
+  {% if all_pinned.size > visible_end %}
+    {% assign pinned_size = paginator.per_page %}
+  {% else %}
+    {% assign pinned_size = all_pinned.size | minus: visible_start %}
+  {% endif %}
+
+  {% for i in (visible_start..all_pinned.size) limit: pinned_size %}
+    {% assign posts = posts | push: all_pinned[i] %}
+  {% endfor %}
+{% else %}
+  {% assign pinned_size = 0 %}
+{% endif %}
+
+<!-- Get normal posts on current page -->
+
+{% assign normal_size = paginator.posts | size | minus: pinned_size %}
+
+{% if normal_size > 0 %}
+  {% if pinned_size > 0 %}
+    {% assign normal_start = 0 %}
+  {% else %}
+    {% assign normal_start = visible_start | minus: all_pinned.size %}
+  {% endif %}
+
+  {% assign normal_end = normal_start | plus: normal_size | minus: 1 %}
+
+  {% for i in (normal_start..normal_end) %}
+    {% assign posts = posts | push: all_normal[i] %}
+  {% endfor %}
+{% endif %}
+
+<div id="wuwa-select" class="wuwa-select flex-grow-1 px-xl-1">
+  <!-- ── 좌: 선택 목록 ───────────────────────────────────────── -->
+  <div class="wuwa-roster">
+    <p class="wuwa-roster__label">SELECT ENTRY</p>
+
+    <ul class="wuwa-roster__list">
+      {% for post in posts %}
+        {% assign idx = forloop.index | prepend: '0' | slice: -2, 2 %}
+        <li>
+          <a
+            class="wuwa-tile{% if forloop.first %} is-active{% endif %}"
+            href="{{ post.url | relative_url }}"
+            data-wuwa-tile="{{ forloop.index0 }}"
+          >
+            <span class="wuwa-tile__no" aria-hidden="true">{{ idx }}</span>
+            <span class="wuwa-tile__body">
+              <span class="wuwa-tile__title">{{ post.title }}</span>
+              <span class="wuwa-tile__meta">
+                {% if post.categories.size > 0 %}{{ post.categories | first }}{% endif %}
+              </span>
+            </span>
+            {% if post.pin %}
+              <i class="fas fa-thumbtack fa-fw wuwa-tile__pin" aria-hidden="true"></i>
+            {% endif %}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- ── 우: 상세 ────────────────────────────────────────────── -->
+  <div class="wuwa-detail">
+    {% for post in posts %}
+      <article
+        class="wuwa-panel"
+        data-wuwa-panel="{{ forloop.index0 }}"
+        {% unless forloop.first %}hidden{% endunless %}
+      >
+        <p class="wuwa-panel__eyebrow">
+          {% if post.categories.size > 0 %}
+            {% for category in post.categories %}
+              {{ category }}{%- unless forloop.last -%} · {%- endunless -%}
+            {% endfor %}
+          {% else %}
+            ENTRY
+          {% endif %}
+        </p>
+
+        <h2 class="wuwa-panel__title">
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        </h2>
+
+        <!-- 에코 화면의 스탯 목록 문법: 라벨 ─── 값 -->
+        <dl class="wuwa-stats">
+          <div class="wuwa-stats__row">
+            <dt>DATE</dt>
+            <dd>{% include datetime.html date=post.date lang=lang %}</dd>
+          </div>
+
+          {% if post.categories.size > 0 %}
+            <div class="wuwa-stats__row">
+              <dt>CATEGORY</dt>
+              <dd>
+                {% for category in post.categories %}
+                  {{ category }}{%- unless forloop.last -%}, {%- endunless -%}
+                {% endfor %}
+              </dd>
+            </div>
+          {% endif %}
+
+          {% if post.tags.size > 0 %}
+            <div class="wuwa-stats__row">
+              <dt>TAGS</dt>
+              <dd>{{ post.tags | join: ', ' }}</dd>
+            </div>
+          {% endif %}
+        </dl>
+
+        <div class="wuwa-panel__summary content">
+          <p>{% include post-summary.html %}</p>
+        </div>
+
+        <!-- 라벨을 locale 에서 끌어오지 않고 고정한다.
+             ko-KR locale 의 post.button.* 는 "다음 게시글" 같은 다른 뜻이라
+             여기에 쓰면 엉뚱한 문구가 나온다. 게임 UI 의 라틴 라벨 톤에도 맞다. -->
+        <a class="wuwa-panel__go" href="{{ post.url | relative_url }}">
+          READ
+          <i class="fas fa-angle-right fa-fw" aria-hidden="true"></i>
+        </a>
+      </article>
+    {% endfor %}
+  </div>
+</div>
+<!-- #wuwa-select -->
+
+<noscript>
+  <!-- JS 가 없으면 숨겨 둔 상세를 전부 펼친다.
+       타일은 원래 링크라 그대로 쓸 수 있고, 내용도 하나도 가려지지 않는다. -->
+  <style>
+    .wuwa-panel[hidden] {
+      display: block;
+    }
+  </style>
+</noscript>
+
+{% if paginator.total_pages > 1 %}
+  {% include post-paginator.html %}
+{% endif %}

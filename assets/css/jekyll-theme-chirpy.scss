@@ -31,7 +31,7 @@
      7  전역 연출
      8  사이드바
      9  상단바
-    10  게시글 목록
+    10  홈 — 공명자 선택형 좌우 분할
     11  본문 타이포그래피
     12  코드 블록 / 프롬프트
     13  태그 · 카테고리 · 아카이브
@@ -595,7 +595,7 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 .nav-link:focus-visible,
-#post-list .post-preview:focus-visible {
+.wuwa-tile:focus-visible {
   outline: 2px solid var(--wuwa-accent);
   outline-offset: 2px;
 }
@@ -768,175 +768,267 @@ search {
 }
 
 
-/* ---- 10) 게시글 목록 — "에코 목록" 행 --------------------------------
-   레퍼런스: 공명자 선택 / 에코 화면.
-     · 타일 왼쪽 바깥에 흐린 인덱스 번호(01 02 03 …)가 세로로 늘어선다
-     · 선택된 타일은 코너 장식이 아니라 "전체를 감싸는 밝은 프레임"을 받는다
-     · 타일 아래쪽에 정보 스트립이 있고 값(Lv.20)이 오른쪽 끝에 붙는다
+/* ---- 10) 홈 — 공명자 선택형 좌우 분할 --------------------------------
+   여기부터는 CSS 만으로 되는 일이 아니라서 _layouts/home.html 을 직접 덮어썼다.
+   (Jekyll 은 사이트 소스의 같은 경로 파일을 gem 보다 먼저 쓴다.
+    이 저장소에서 그게 실제로 동작한다는 건 _includes/metadata-hook.html 로 확인했다)
+   마크업 구조와 "타일을 왜 <a> 로 두는가"는 그 파일 주석에 적어 두었다.
 
-   그래서 이전 버전의 ㄱ자 코너 브래킷을 걷어내고 그 두 가상요소를
-   인덱스 번호와 프레임에 다시 배정했다.
+   레퍼런스(공명자 선택 화면)의 배치:
+     왼쪽  선택 목록 — 번호 + 이름이 붙은 좁은 타일이 세로로 쌓인다
+     오른쪽 상세     — 이름, 라벨-값 스탯 행, 설명, 진입 버튼
+     선택된 타일은 목록에서 살짝 튀어나온다
 
-   대상 선택 근거 (Chirpy v7.6.0 _layouts/home.html):
-     <article class="card-wrapper card">   ← 바깥 상자. _home.scss에서 background:none
-       <a class="post-preview row g-0">    ← 배경·그림자를 가진 "진짜 카드"
-
-   가상요소 배분 (충돌 주의):
-     .post-preview::before → Chirpy 가 hover 막으로 이미 쓴다. 건드리지 않는다.
-     .post-preview::after  → 선택 프레임
-     .card-wrapper::before → 인덱스 번호
-     .card-wrapper::after  → 비워 둔다
-
-   목록은 1열 세로 나열을 유지한다. 2열 그리드는 전에 해 봤다가 되돌렸다.
+   ⚠ 폭 계산 근거: Chirpy 의 xl 레이아웃에서 본문 칸은 806px, 우측 패널이 269px 다.
+   그 806px 안에서 다시 좌우로 쪼개는 것이므로 목록을 17rem(272px)으로 묶고
+   나머지를 상세에 준다. 850px(Chirpy lg) 미만에서는 상세를 숨기고
+   목록만 평범한 링크 목록으로 쓴다 — 좁은 화면에서 좌우 분할은 둘 다 못 읽게 만든다.
 ------------------------------------------------------------------ */
 
-#post-list {
-  /* 인덱스 번호를 CSS 카운터로 센다. 템플릿을 고칠 필요가 없다. */
-  counter-reset: wuwa-post;
+.wuwa-select {
+  margin-top: 2rem;
 }
 
-#post-list .card-wrapper {
-  position: relative;
-  counter-increment: wuwa-post;
-
-  /* 번호가 들어갈 자리를 카드 왼쪽 바깥에 만든다 */
-  padding-left: 3.4rem;
+@media (min-width: 850px) {
+  .wuwa-select {
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
 }
 
-/* 흐린 인덱스 번호. 게임에서도 읽으라고 있는 게 아니라 리듬을 만드는 장치라
-   대비를 낮게 둔다(장식이므로 AA 대상이 아니다). */
-#post-list .card-wrapper::before {
-  content: counter(wuwa-post, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 0.9rem;
-  width: 3.4rem;
-  text-align: center;
+/* ── 좌: 선택 목록 ────────────────────────────────────────────── */
+
+.wuwa-roster__label {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--wuwa-line-gold);
   font-family: var(--wuwa-font-display);
-  font-size: 1.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.28em;
+  color: var(--wuwa-accent);
+}
+
+.wuwa-roster__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wuwa-roster__list li + li {
+  margin-top: 0.4rem;
+}
+
+.wuwa-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--wuwa-line);
+  border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+  background-color: var(--wuwa-surface);
+  color: var(--wuwa-text);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.wuwa-tile:hover,
+.wuwa-tile:focus-visible,
+.wuwa-tile.is-active {
+  border-color: var(--wuwa-accent);
+  background-color: var(--wuwa-accent-08);
+  text-decoration: none;
+}
+
+/* 선택된 타일이 오른쪽으로 밀려 나온다 —
+   게임에서 선택된 공명자 카드가 목록 밖으로 튀어나오는 그 동작이다. */
+.wuwa-tile.is-active {
+  transform: translateX(4px);
+}
+
+.wuwa-tile__no {
+  flex: none;
+  font-family: var(--wuwa-font-display);
+  font-size: 1.1rem;
+  line-height: 1;
   letter-spacing: 0.06em;
   color: var(--wuwa-muted);
-  opacity: 0.3;
-  transition: color 0.25s ease, opacity 0.25s ease;
-  pointer-events: none;
+  opacity: 0.45;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-/* 좁은 화면에서는 번호 자리를 없앤다. 본문 폭이 더 중요하다. */
-@media (max-width: 849px) {
-  #post-list .card-wrapper {
-    padding-left: 0;
-  }
+.wuwa-tile:hover .wuwa-tile__no,
+.wuwa-tile:focus-visible .wuwa-tile__no,
+.wuwa-tile.is-active .wuwa-tile__no {
+  color: var(--wuwa-accent);
+  opacity: 1;
+}
 
-  #post-list .card-wrapper::before {
+.wuwa-tile__body {
+  /* flex 자식은 기본 min-width 가 auto 라 내용보다 작아지지 않는다.
+     0 으로 풀어 주지 않으면 아래 말줄임이 걸리지 않고 타일이 삐져나간다. */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.wuwa-tile__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--wuwa-text-hi);
+}
+
+.wuwa-tile__meta {
+  font-family: var(--wuwa-font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wuwa-muted);
+}
+
+.wuwa-tile__pin {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--wuwa-accent);
+}
+
+/* ── 우: 상세 ─────────────────────────────────────────────────── */
+
+@media (max-width: 849px) {
+  .wuwa-detail {
     display: none;
   }
 }
 
-#post-list .post-preview {
-  /* Chirpy 는 .post-preview::before 반투명 오버레이로 hover 효과를 이미 준다.
-     transform 이 걸리면 그 ::before 의 기준 요소가 바뀌므로 기준을 고정해 둔다. */
-  position: relative;
-
-  /* 시작 상태를 명시. 없으면 마우스를 뗄 때 부자연스럽다. */
-  transform: translateY(0);
+.wuwa-panel {
+  padding: 1.6rem 1.75rem 1.4rem;
+  border: 1px solid var(--wuwa-line);
+  border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut);
+  background-color: var(--wuwa-surface);
 }
 
-/* 선택 프레임 — 레퍼런스에서 선택된 공명자 타일을 감싸는 그 테두리.
-   모따기(corner-shape)를 따라가야 하므로 카드와 같은 radius 를 준다. */
-#post-list .post-preview::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  border: 1px solid transparent;
-  border-radius: inherit;
-  transition: border-color 0.25s ease;
+.wuwa-panel__eyebrow {
+  margin: 0 0 0.35rem;
+  font-family: var(--wuwa-font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--wuwa-accent);
 }
 
+.wuwa-panel__title {
+  margin: 0 0 1.1rem;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.wuwa-panel__title a {
+  color: var(--wuwa-text-hi);
+  text-decoration: none;
+}
+
+.wuwa-panel__title a:hover {
+  color: var(--wuwa-accent);
+  text-decoration: none;
+}
+
+/* 라벨 ─── 값 스탯 행. 에코 화면의 HP / ATK / DEF 목록과 같은 문법으로,
+   라벨은 금색 작은 글씨로 왼쪽, 값은 오른쪽 끝에 붙인다. */
+.wuwa-stats {
+  margin: 0 0 1.2rem;
+}
+
+.wuwa-stats__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--wuwa-line-soft);
+}
+
+.wuwa-stats dt {
+  flex: none;
+  width: 5.5rem;
+  font-family: var(--wuwa-font-display);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  color: var(--wuwa-accent);
+}
+
+.wuwa-stats dd {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--wuwa-text);
+  overflow-wrap: anywhere;
+}
+
+.wuwa-panel__summary {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--wuwa-muted);
+}
+
+.wuwa-panel__summary p {
+  margin: 0;
+}
+
+/* 진입 버튼 — 게임 하단 조작 버튼과 같은 "채움 없는 테두리형" */
+.wuwa-panel__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding: 0.45rem 1.1rem;
+  border: 1px solid var(--wuwa-line-gold);
+  border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+  font-family: var(--wuwa-font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wuwa-accent);
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.wuwa-panel__go:hover {
+  background-color: var(--wuwa-accent-18);
+  color: var(--wuwa-accent-hi);
+  text-decoration: none;
+}
+
+/* 모따기는 여기서도 2단 구성(6번 섹션 참고) */
 @supports (corner-shape: bevel) {
-  #post-list .post-preview::after {
+  .wuwa-tile,
+  .wuwa-panel,
+  .wuwa-panel__go {
     corner-shape: bevel;
   }
 }
 
-/* 하단 정보 스트립 — 값이 오른쪽 끝에 붙는 그 줄.
-   .post-meta 안의 내용은 <div class="me-auto"> 하나에 다 들어 있어서
-   좌우로 쪼갤 수는 없다. 대신 줄 전체를 오른쪽으로 보내고 위에 선을 긋는다.
-   (.me-auto = margin-right:auto 라 이걸 풀지 않으면 왼쪽에 붙어 있는다) */
-#post-list .post-meta {
-  border-top: 1px solid var(--wuwa-line);
-  padding-top: 0.6rem;
-  margin-top: 0.4rem;
-  justify-content: flex-end;
-}
+/* ---- 타일 등장 --------------------------------------------------
+   이전 구조(카드 목록)의 등장 애니메이션을 새 구조로 옮겼다.
 
-/* ⚠ 여기서 !important 가 필요하다. 저 안쪽 div 에는 Bootstrap 유틸리티
-   .me-auto 가 붙어 있고, Bootstrap 유틸리티는 설계상 전부 !important 다
-   (margin-right: auto !important). 특이도로는 이길 수 없다. */
-#post-list .post-meta > div:first-child {
-  margin-right: 0 !important;
-  flex: none;
-}
-
-#post-list .post-meta .categories {
-  letter-spacing: 0.08em;
-}
-
-/* 마우스가 있는 기기에서만. 터치 기기는 hover 가 눌러붙어 안 풀린다.
-   Chirpy 도 _base.scss 에서 같은 패턴을 쓴다. */
-@media (hover: hover) {
-  #post-list .post-preview {
-    /* transition 은 "한 덩어리" 속성이라 다시 쓰면 기존 값이 통째로 덮어써진다.
-       Chirpy 원래 값인 background-color 를 여기 같이 적어 보존한다. */
-    transition:
-      background-color 0.35s ease-in-out,
-      transform 0.25s ease,
-      box-shadow 0.25s ease;
-  }
-
-  /* 선택된 타일은 살짝 떠오르고, 그림자보다 "프레임"으로 선택을 알린다.
-     게임에서도 발광이 아니라 또렷한 테두리가 선택 신호다. */
-  #post-list .card-wrapper:hover .post-preview {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 26px rgb(0 0 0 / 60%);
-  }
-
-  #post-list .card-wrapper:hover .post-preview::after {
-    border-color: var(--wuwa-accent);
-  }
-
-  /* 인덱스 번호도 같이 깨어난다 — 지금 몇 번째를 보고 있는지가 드러난다 */
-  #post-list .card-wrapper:hover::before {
-    color: var(--wuwa-accent);
-    opacity: 1;
-  }
-}
-
-/* Chirpy 는 hover 막(.post-preview::before)을 opacity .3 으로 덮는다.
-   --card-hover-bg 에 금색 원색을 넣었더니 30%는 너무 진해서 본문이 읽히지 않았다.
-   색은 그대로 두고 농도만 낮춘다. */
-#post-list .post-preview:hover::before {
-  opacity: 0.12;
-}
-
-/* 키보드 포커스에서도 같은 신호를 준다 (마우스가 없는 사용자) */
-#post-list .post-preview:focus-visible::after {
-  border-color: var(--wuwa-accent);
-}
-
-/* ---- 카드 등장: 아주 약한 fade-up ---------------------------------
-   @keyframes = "움직임의 대본", animation = 그 대본을 요소에 트는 것.
-
-   ⚠ 이름은 반드시 고유하게. Chirpy 가 이미 @keyframes fade-up 을 정의해
-   목차(#toc-wrapper)에 쓰고 있다. 같은 이름을 다시 정의하면 나중 것이 앞 것을
-   조용히 대체한다. 그래서 접두사를 붙였다.
+   ⚠ 이름은 여전히 고유해야 한다. Chirpy 가 이미 @keyframes fade-up 을 정의해
+   목차(#toc-wrapper)에 쓰고 있어서, 같은 이름을 다시 정의하면 나중 것이
+   앞 것을 조용히 대체한다.
 ------------------------------------------------------------------ */
 
 @keyframes post-card-fade-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
 
   to {
@@ -945,19 +1037,15 @@ search {
   }
 }
 
-/* hover 는 안쪽 <a class="post-preview">, 등장은 바깥 <article class="card-wrapper">.
-   서로 다른 요소에 걸어야 두 transform 이 충돌하지 않는다. */
-#post-list .card-wrapper {
-  /* both = animation-fill-mode: both.
-     이게 없으면 delay 동안 카드가 최종 모습으로 보이다가 시작 순간 깜빡인다. */
-  animation: post-card-fade-up 0.4s ease-out both;
+.wuwa-roster__list li {
+  /* both = 시작 전엔 from, 끝난 뒤엔 to 를 유지. 없으면 delay 동안 깜빡인다. */
+  animation: post-card-fade-up 0.35s ease-out both;
 }
 
-/* _config.yml 의 paginate: 10 → 한 페이지에 카드는 최대 10개.
-   이 SCSS @for 3줄이 컴파일되면 nth-child 규칙 10개로 펼쳐진다. */
+/* _config.yml 의 paginate: 10 → 한 페이지에 최대 10개 */
 @for $i from 1 through 10 {
-  #post-list .card-wrapper:nth-child(#{$i}) {
-    animation-delay: ($i - 1) * 60ms;
+  .wuwa-roster__list li:nth-child(#{$i}) {
+    animation-delay: ($i - 1) * 45ms;
   }
 }
 
@@ -1225,20 +1313,17 @@ footer {
 ------------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
-  /* 카드 등장 애니메이션은 통째로 끈다.
+  /* 타일 등장 애니메이션은 통째로 끈다.
      fill-mode: both 였으므로 animation: none 이면 원래 모습으로 즉시 표시된다. */
-  #post-list .card-wrapper {
+  .wuwa-roster__list li {
     animation: none;
   }
 
-  /* hover 의 "떠오름"만 제거. 그림자와 배경 fade 는 그대로 둔다.
-
-     목록을 "에코 목록 행"으로 바꾸면서 선택 신호가 이동(공명 바가 차오름)에서
-     색 변화(프레임과 인덱스 번호가 금색이 됨)로 바뀌었다. 색 변화는 화면이
-     움직이는 게 아니므로 여기서 끌 대상이 아니다 — 그래서 이 블록이 이전보다
-     짧아졌다. 선택이 어느 카드인지는 그대로 전달된다. */
-  #post-list .post-preview,
-  #post-list .card-wrapper:hover .post-preview,
+  /* 이동만 제거한다. 색 변화(테두리·번호가 금색이 되는 것)는 화면이 움직이는 게
+     아니므로 남겨 둔다 — 그게 "어느 항목이 선택됐는지"를 전달하는 신호다.
+     선택된 타일이 옆으로 밀려 나오는 동작만 끈다. */
+  .wuwa-tile,
+  .wuwa-tile.is-active,
   #tags .tag,
   #tags .tag:hover,
   .post-tags .post-tag,

@@ -21,3 +21,8 @@
      명조 공식 사이트가 실제로 쓰는 서체다. 라틴 전용이라 한글은 영향이 없다. -->
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@300;500;700&amp;display=swap">
+
+<!-- 홈의 "공명자 선택" 상호작용.
+     defer 라 <head> 에 있어도 문서 파싱이 끝난 뒤에 실행된다.
+     relative_url 을 거쳐야 baseurl(/my-blog)이 붙는다. -->
+<script defer src="{{ '/assets/js/wuwa-select.js' | relative_url }}"></script>
