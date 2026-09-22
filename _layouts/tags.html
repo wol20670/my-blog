@@ -1,0 +1,30 @@
+---
+layout: page
+# All the Tags of posts.
+---
+
+<!--
+  에코 인벤토리 화면의 타일 격자.
+  원래는 태그 이름 뒤에 개수가 작게 붙은 인라인 칩들이 흘러가는 형태였는데,
+  게임 쪽 문법은 "같은 크기 타일이 격자로 늘어서고, 각 타일 구석에 수치가 붙는" 것이다.
+  개수를 큰 숫자로 올려서 그 문법에 맞췄다.
+-->
+
+{% assign tags = '' | split: '' %}
+{% for t in site.tags %}
+  {% assign tags = tags | push: t[0] %}
+{% endfor %}
+
+{% assign sorted_tags = tags | sort_natural %}
+
+<div id="tags" class="wuwa-grid mx-xl-2">
+  {% for t in sorted_tags %}
+    <a
+      class="wuwa-cell"
+      href="{{ t | slugify | url_encode | prepend: '/tags/' | append: '/' | relative_url }}"
+    >
+      <span class="wuwa-cell__count">{{ site.tags[t].size }}</span>
+      <span class="wuwa-cell__name">{{ t }}</span>
+    </a>
+  {% endfor %}
+</div>

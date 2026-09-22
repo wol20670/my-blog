@@ -1,0 +1,65 @@
+---
+layout: page
+# All the Categories of posts
+---
+
+{% include lang.html %}
+
+<!--
+  카테고리도 같은 타일 격자로.
+
+  원래 Chirpy 는 카테고리마다 접었다 펴는 아코디언 카드를 만든다.
+  이 블로그는 하위 카테고리를 쓰지 않아서 그 접기 버튼이 전부 빈 화살표였고,
+  누를 것도 없는 조작 장치가 화면에 남아 있었다.
+  그래서 타일 격자로 바꾸되, 하위 카테고리가 생기면 타일 안에 작은 칩으로
+  같이 보여 준다 — 기능을 버리지 않으면서 JS 없이 한 화면에 다 들어간다.
+-->
+
+{% assign sort_categories = site.categories | sort %}
+
+<div id="categories" class="wuwa-grid mx-xl-2">
+  {% for category in sort_categories %}
+    {% assign category_name = category | first %}
+    {% assign posts_of_category = category | last %}
+    {% assign first_post = posts_of_category | first %}
+
+    {% comment %}
+      상위 카테고리만 타일로 만든다.
+      (하위 카테고리는 site.categories 에도 따로 들어 있어서 이 조건이 없으면 중복된다)
+    {% endcomment %}
+    {% if category_name == first_post.categories[0] %}
+      {% assign sub_categories = '' | split: '' %}
+
+      {% for post in posts_of_category %}
+        {% assign second_category = post.categories[1] %}
+        {% if second_category %}
+          {% unless sub_categories contains second_category %}
+            {% assign sub_categories = sub_categories | push: second_category %}
+          {% endunless %}
+        {% endif %}
+      {% endfor %}
+
+      {% assign sub_categories = sub_categories | sort %}
+      {% capture _category_url %}/categories/{{ category_name | slugify | url_encode }}/{% endcapture %}
+
+      <div class="wuwa-cell wuwa-cell--group">
+        <a class="wuwa-cell__link" href="{{ _category_url | relative_url }}">
+          <span class="wuwa-cell__count">{{ posts_of_category | size }}</span>
+          <span class="wuwa-cell__name">{{ category_name }}</span>
+        </a>
+
+        {% if sub_categories.size > 0 %}
+          <div class="wuwa-cell__subs">
+            {% for sub_category in sub_categories %}
+              {% capture _sub_ctg_url %}/categories/{{ sub_category | slugify | url_encode }}/{% endcapture %}
+              <a class="wuwa-subchip" href="{{ _sub_ctg_url | relative_url }}">
+                {{ sub_category }}
+                <span>{{ site.categories[sub_category] | size }}</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>

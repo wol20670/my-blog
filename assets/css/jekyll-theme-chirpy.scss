@@ -36,7 +36,8 @@
     12  코드 블록 / 프롬프트
     13  태그 · 카테고리 · 아카이브
     14  페이지네이션 · TOC · 기타
-    15  접근성: 움직임 최소화   ← 반드시 마지막
+    15  새로 짠 템플릿의 부품
+    16  접근성: 움직임 최소화   ← 반드시 마지막
 ------------------------------------------------------------ */
 
 
@@ -1208,35 +1209,20 @@ blockquote.prompt-danger {
 
 
 /* ---- 13) 태그 · 카테고리 · 아카이브 ---------------------------------
-   /tags/ 페이지 구조:
-     <div id="tags" class="d-flex flex-wrap">   ← Chirpy 가 이미 flex 로 만들어 둠
-       <div><a class="tag">git<span>5</span></a></div>
+   /tags/ 와 /categories/ 는 _layouts/tags.html, _layouts/categories.html 을
+   직접 덮어써서 타일 격자로 바꿨다. 그 타일(.wuwa-grid / .wuwa-cell)의 모양은
+   15번 섹션에 있다.
 
-   즉 flex 를 새로 켜는 게 아니라, 간격을 만드는 방식을 바꾸는 것이다.
-   기존: .tag { margin-right: .8rem; line-height: 3rem }
-     → 줄바꿈되면 각 줄 오른쪽 끝에 쓸모없는 여백이 남고,
-       세로 간격을 line-height 로 억지로 만들고 있다.
-   gap 은 "칸과 칸 사이"에만 들어가므로 두 문제가 같이 해결된다.
+   여기 남은 것은 글 본문 아래 붙는 태그 칩(.post-tags .post-tag)뿐이다.
+   Chirpy 의 /tags/ 용 .tag 규칙은 이제 대상이 없어서 걷어냈다.
 ------------------------------------------------------------------ */
 
-#tags {
-  /* 두 값 = 행 간격 0.6rem, 열 간격 0.8rem */
-  gap: 0.6rem 0.8rem;
-}
-
-#tags .tag {
-  /* .tag 는 display 지정이 없는 <a> = inline 요소.
-     inline 요소에는 transform 이 적용되지 않으므로 hover 효과에 필수다. */
-  display: inline-block;
-
-  margin-right: 0; /* gap 이 대신하므로 해제 */
-  line-height: 1.6; /* 세로 간격을 만들던 3rem 해제 */
+.post-tags .post-tag {
   border: 1px solid var(--wuwa-line);
 }
 
 /* 태그 hover — 카드보다 작은 요소라 움직임도 더 작게(-2px) */
 @media (hover: hover) {
-  #tags .tag,
   .post-tags .post-tag {
     /* Chirpy 는 transition 을 :hover 안에만 둬서 마우스를 뗄 때는 뚝 끊긴다.
        기본 상태에 두면 들어올 때와 나갈 때 모두 부드러워진다. */
@@ -1246,7 +1232,6 @@ blockquote.prompt-danger {
       transform 0.2s ease;
   }
 
-  #tags .tag:hover,
   .post-tags .post-tag:hover {
     /* transform 하나에 여러 함수를 나열하면 순서대로 적용된다.
        속성을 두 번 쓰면 나중 것이 앞 것을 덮어쓰므로 반드시 한 줄에 적는다. */
@@ -1294,7 +1279,214 @@ footer {
 }
 
 
-/* ---- 15) 접근성: 움직임 최소화 설정 존중 ----------------------------
+/* ---- 15) 새로 짠 템플릿의 부품 ---------------------------------------
+   아래 클래스들은 CSS 만으로는 만들 수 없어서 템플릿을 직접 덮어쓰며 생긴 것이다.
+     _includes/sidebar.html   → .wuwa-status  (프로필 스탯 블록)
+     _includes/topbar.html    → .wuwa-hud     (상단 판독값)
+     _layouts/post.html       → .post-meta.wuwa-stats (글 머리 스탯)
+     _layouts/tags.html       → .wuwa-grid / .wuwa-cell
+     _layouts/categories.html → .wuwa-cell--group / .wuwa-subchip
+   각 파일 주석에 "왜 그렇게 짰는지"가 적혀 있다.
+------------------------------------------------------------------ */
+
+/* ── 사이드바 프로필 스탯 ─────────────────────────────────────── */
+
+.wuwa-status {
+  width: 100%;
+  margin: 1.25rem 0 0;
+}
+
+.wuwa-status__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--wuwa-line-soft);
+}
+
+.wuwa-status dt {
+  font-family: var(--wuwa-font-display);
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--wuwa-accent);
+}
+
+.wuwa-status dd {
+  margin: 0;
+  font-family: var(--wuwa-font-display);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--wuwa-text-hi);
+}
+
+/* ── 상단바 HUD 판독값 ───────────────────────────────────────── */
+
+.wuwa-hud {
+  align-items: baseline;
+  gap: 0.45rem;
+  margin-left: auto;
+  margin-right: 1.25rem;
+  font-family: var(--wuwa-font-display);
+  white-space: nowrap;
+}
+
+.wuwa-hud__label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--wuwa-accent);
+}
+
+.wuwa-hud__value {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--wuwa-muted-hi);
+}
+
+/* 경로 표시 앞의 금색 마름모 — 게임 화면 제목 앞 문양과 같은 역할 */
+#topbar #breadcrumb::before {
+  content: '';
+  display: inline-block;
+  width: 0.38rem;
+  height: 0.38rem;
+  margin-right: 0.55rem;
+  vertical-align: middle;
+  background: var(--wuwa-accent);
+  transform: rotate(45deg);
+}
+
+/* ── 글 머리 스탯 ────────────────────────────────────────────── */
+
+/* .wuwa-stats 의 기본 모양은 10번 섹션에 있다. 여기서는 글 페이지에서만
+   필요한 차이(위아래 여백, 라벨 폭)를 얹는다. */
+.post-meta.wuwa-stats {
+  margin: 1.25rem 0 1.5rem;
+}
+
+.post-meta.wuwa-stats dt {
+  width: 6.5rem;
+}
+
+/* Chirpy 가 .post-meta 안의 <em> 을 기울임 없이 쓰도록 해 둔 걸 유지하되,
+   값 쪽 글자색만 본문색으로 맞춘다. */
+.post-meta.wuwa-stats dd,
+.post-meta.wuwa-stats dd em {
+  color: var(--wuwa-text);
+  font-style: normal;
+}
+
+/* ── 태그 · 카테고리 타일 격자 ───────────────────────────────── */
+
+.wuwa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.wuwa-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--wuwa-line);
+  border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+  background-color: var(--wuwa-surface);
+  color: var(--wuwa-text);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+a.wuwa-cell:hover,
+a.wuwa-cell:focus-visible {
+  border-color: var(--wuwa-accent);
+  background-color: var(--wuwa-accent-08);
+  text-decoration: none;
+}
+
+/* 수치를 이름보다 크게 올린다 — 게임 타일은 수치가 먼저 읽힌다 */
+.wuwa-cell__count {
+  font-family: var(--wuwa-font-display);
+  font-size: 1.45rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--wuwa-accent);
+}
+
+.wuwa-cell__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--wuwa-text-hi);
+}
+
+/* 카테고리 타일은 <a> 가 아니라 <div> 다 — 안에 하위 카테고리 링크가
+   또 들어가기 때문이다. 링크 안에 링크는 넣을 수 없다. */
+.wuwa-cell--group {
+  grid-column: span 1;
+}
+
+.wuwa-cell__link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.wuwa-cell__link:hover {
+  text-decoration: none;
+}
+
+.wuwa-cell--group:hover {
+  border-color: var(--wuwa-accent);
+  background-color: var(--wuwa-accent-08);
+}
+
+.wuwa-cell__subs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--wuwa-line-soft);
+}
+
+.wuwa-subchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--wuwa-line-soft);
+  border-radius: 0 4px 0 4px;
+  font-size: 0.72rem;
+  color: var(--wuwa-muted);
+  text-decoration: none;
+}
+
+.wuwa-subchip:hover {
+  border-color: var(--wuwa-accent-35);
+  color: var(--wuwa-accent);
+  text-decoration: none;
+}
+
+.wuwa-subchip span {
+  font-family: var(--wuwa-font-display);
+  font-size: 0.65rem;
+  color: var(--wuwa-accent);
+}
+
+@supports (corner-shape: bevel) {
+  .wuwa-cell,
+  .wuwa-subchip {
+    corner-shape: bevel;
+  }
+}
+
+/* ---- 16) 접근성: 움직임 최소화 설정 존중 ----------------------------
    OS 에 "동작 줄이기"를 켠 사용자(전정기관 질환, 멀미, 주의력 문제 등)에게는
    화면이 움직이는 것 자체가 불편하거나 어지럼증을 유발할 수 있다.
 
@@ -1324,8 +1516,8 @@ footer {
      선택된 타일이 옆으로 밀려 나오는 동작만 끈다. */
   .wuwa-tile,
   .wuwa-tile.is-active,
-  #tags .tag,
-  #tags .tag:hover,
+
+
   .post-tags .post-tag,
   .post-tags .post-tag:hover {
     transform: none;

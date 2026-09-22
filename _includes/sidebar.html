@@ -1,0 +1,141 @@
+<!-- The Side Bar -->
+
+<aside aria-label="Sidebar" id="sidebar" class="d-flex flex-column align-items-end">
+  <header class="profile-wrapper">
+    <a href="{{ '/' | relative_url }}" id="avatar" class="rounded-circle">
+      {%- if site.avatar != empty and site.avatar -%}
+        {%- capture avatar_url -%}
+          {% include media-url.html src=site.avatar %}
+        {%- endcapture -%}
+        <img src="{{- avatar_url -}}" width="112" height="112" alt="avatar" onerror="this.style.display='none'">
+      {%- endif -%}
+    </a>
+
+    <a class="site-title d-block" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <p class="site-subtitle fst-italic mb-0">{{ site.tagline }}</p>
+
+    <!-- 프로필 스탯 블록.
+         게임 터미널 화면에서 아바타 아래에 붙는 Birthday / SOL3 Phase /
+         Union Level 행이 이 자리다. 라벨은 금색, 값은 뼈색 —
+         그 화면의 정보 표기 문법을 그대로 옮겼다.
+         blog 에서 그 자리에 놓을 수 있는 실제 수치는 글·카테고리·태그 수다. -->
+    <dl class="wuwa-status">
+      <div class="wuwa-status__row">
+        <dt>ENTRIES</dt>
+        <dd>{{ site.posts.size }}</dd>
+      </div>
+      <div class="wuwa-status__row">
+        <dt>CATEGORIES</dt>
+        <dd>{{ site.categories.size }}</dd>
+      </div>
+      <div class="wuwa-status__row">
+        <dt>TAGS</dt>
+        <dd>{{ site.tags.size }}</dd>
+      </div>
+    </dl>
+  </header>
+  <!-- .profile-wrapper -->
+
+  <nav class="flex-column flex-grow-1 w-100 ps-0">
+    <ul class="nav">
+      <!-- home -->
+      <li class="nav-item{% if page.layout == 'home' %}{{ " active" }}{% endif %}">
+        <a href="{{ '/' | relative_url }}" class="nav-link">
+          <i class="fa-fw fas fa-home"></i>
+          <span>{{ site.data.locales[include.lang].tabs.home | upcase }}</span>
+        </a>
+      </li>
+      <!-- the real tabs -->
+      {% for tab in site.tabs %}
+        <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
+          <a href="{{ tab.url | relative_url }}" class="nav-link">
+            <i class="fa-fw {{ tab.icon }}"></i>
+            {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
+
+            <span>{{ site.data.locales[include.lang].tabs.[tab_name] | default: tab.title | upcase }}</span>
+          </a>
+        </li>
+        <!-- .nav-item -->
+      {% endfor %}
+    </ul>
+  </nav>
+
+  <div class="sidebar-bottom d-flex flex-wrap align-items-center w-100">
+    {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
+      {%- capture icon_system -%}
+        <i class="fa-solid fa-display" data-theme-mode="system"></i>
+      {%- endcapture -%}
+
+      {%- capture icon_light -%}
+        <i class="fa-regular fa-sun" data-theme-mode="light"></i>
+      {%- endcapture -%}
+
+      {%- capture icon_dark -%}
+        <i class="fa-regular fa-moon" data-theme-mode="dark"></i>
+      {%- endcapture -%}
+
+      <div class="btn-group dropup">
+        <button
+          type="button"
+          class="btn btn-link nav-link"
+          aria-label="Switch Mode"
+          id="mode-toggle"
+          data-bs-toggle="dropdown"
+        >
+          {{- icon_light -}}
+          {{- icon_dark -}}
+          {{- icon_system -}}
+        </button>
+        <ul class="dropdown-menu rounded-3 mb-1 p-1">
+          <li>
+            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
+              {{- icon_light -}}
+              {{- site.data.locales[lang].theme.light -}}
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="dark">
+              {{- icon_dark -}}
+              {{- site.data.locales[lang].theme.dark -}}
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="system">
+              {{- icon_system -}}
+              {{- site.data.locales[lang].theme.system -}}
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      {% if site.data.contact.size > 0 %}
+        <span class="icon-border"></span>
+      {% endif %}
+    {% endunless %}
+
+    <!-- 바깥 링크.
+         원래 이 자리는 site.data.contact 를 도는 루프였는데
+         (Liquid 는 HTML 주석 안의 태그도 파싱하므로 여기에 그 문법을 그대로
+          적으면 짝 없는 태그가 되어 빌드가 깨진다. 그래서 풀어서 적는다),
+         이 저장소에서는 실측 결과 아무것도 만들지 않았다
+         (.sidebar-bottom 의 childCount 가 0이었다 — theme_mode: dark 로 토글까지
+         사라지면서 완전히 빈 칸이 됐다).
+         그래서 추측에 기대지 않고 실제로 존재하는 링크만 직접 적는다. -->
+    {% if site.github.username %}
+      <a
+        href="https://github.com/{{ site.github.username }}"
+        aria-label="GitHub"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+    {% endif %}
+
+    <a href="{{ '/feed.xml' | relative_url }}" aria-label="RSS">
+      <i class="fas fa-rss"></i>
+    </a>
+  </div>
+  <!-- .sidebar-bottom -->
+</aside>
+<!-- #sidebar -->

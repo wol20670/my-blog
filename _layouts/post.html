@@ -1,0 +1,192 @@
+---
+layout: default
+panel_includes:
+  - toc
+tail_includes:
+  - related-posts
+  - post-nav
+script_includes:
+  - comment
+---
+
+{% include lang.html %}
+
+{% include toc-status.html %}
+
+<article class="px-1" data-toc="{{ enable_toc }}">
+  <header>
+    <h1 data-toc-skip>{{ page.title }}</h1>
+    {% if page.description %}
+      <p class="post-desc fw-light mb-4">{{ page.description }}</p>
+    {% endif %}
+
+    <!-- 에코 상세 패널의 스탯 목록 문법.
+         원래 Chirpy 는 이 정보를 "게시 2026/09/03 · By wol20670" 처럼 문장으로
+         늘어놓는데, 항목이 분명한 라벨-값 구조라서 <dl> 로 바꾸면
+         의미(마크업)와 화면이 같이 맞는다.
+         .post-meta 클래스는 남겨 둔다 — Chirpy 의 링크 색과 툴팁 초기화가
+         이 클래스를 기준으로 걸려 있다. -->
+    <dl class="post-meta wuwa-stats">
+      <div class="wuwa-stats__row">
+        <dt>DATE</dt>
+        <dd>{% include datetime.html date=page.date tooltip=true lang=lang %}</dd>
+      </div>
+
+      {% if page.last_modified_at and page.last_modified_at != page.date %}
+        <div class="wuwa-stats__row">
+          <dt>UPDATED</dt>
+          <dd>{% include datetime.html date=page.last_modified_at tooltip=true lang=lang %}</dd>
+        </div>
+      {% endif %}
+
+      <div class="wuwa-stats__row">
+        <dt>BY</dt>
+        <dd>
+          {% if page.author %}
+            {% assign authors = page.author %}
+          {% elsif page.authors %}
+            {% assign authors = page.authors %}
+          {% endif %}
+
+          {% if authors %}
+            {% for author in authors %}
+              {% if site.data.authors[author].url -%}
+                <a href="{{ site.data.authors[author].url }}">{{ site.data.authors[author].name }}</a>
+              {%- else -%}
+                {{ site.data.authors[author].name }}
+              {%- endif %}
+              {%- unless forloop.last %}, {% endunless %}
+            {% endfor %}
+          {% else %}
+            <a href="{{ site.social.links[0] }}">{{ site.social.name }}</a>
+          {% endif %}
+        </dd>
+      </div>
+
+      {% if page.categories.size > 0 %}
+        <div class="wuwa-stats__row">
+          <dt>CATEGORY</dt>
+          <dd>
+            {% for category in page.categories %}
+              {{ category }}{%- unless forloop.last -%}, {%- endunless -%}
+            {% endfor %}
+          </dd>
+        </div>
+      {% endif %}
+
+      <div class="wuwa-stats__row">
+        <dt>READ</dt>
+        <dd>{% include read-time.html content=content prompt=true lang=lang %}</dd>
+      </div>
+
+      {% if site.pageviews.provider and site.analytics[site.pageviews.provider].id %}
+        <div class="wuwa-stats__row">
+          <dt>VIEWS</dt>
+          <dd>
+            <em id="pageviews"><i class="fas fa-spinner fa-spin small"></i></em>
+            {{ site.data.locales[lang].post.pageview_measure }}
+          </dd>
+        </div>
+      {% endif %}
+    </dl>
+
+    {% if page.image %}
+      {% capture src %}src="{{ page.image.path | default: page.image }}"{% endcapture %}
+      {% capture class %}class="preview-img{% if page.image.no_bg %}{{ ' no-bg' }}{% endif %}"{% endcapture %}
+      {% capture alt %}alt="{{ page.image.alt | xml_escape | default: "Preview Image" }}"{% endcapture %}
+
+      {% if page.image.lqip %}
+        {%- capture lqip -%}lqip="{{ page.image.lqip }}"{%- endcapture -%}
+      {% endif %}
+
+      <div class="mt-3 mb-3">
+        <img {{ src }} {{ class }} {{ alt }} w="1200" h="630" {{ lqip }}>
+        {%- if page.image.alt -%}
+          <figcaption class="text-center pt-2 pb-2">{{ page.image.alt }}</figcaption>
+        {%- endif -%}
+      </div>
+    {% endif %}
+  </header>
+
+  {% if enable_toc %}
+    <div id="toc-bar" class="d-flex align-items-center justify-content-between invisible">
+      <span class="label text-truncate">{{ page.title }}</span>
+      <button type="button" class="toc-trigger btn me-1">
+        <i class="fa-solid fa-list-ul fa-fw"></i>
+      </button>
+    </div>
+
+    <button id="toc-solo-trigger" type="button" class="toc-trigger btn btn-outline-secondary btn-sm">
+      <span class="label ps-2 pe-1">{{- site.data.locales[lang].panel.toc -}}</span>
+      <i class="fa-solid fa-angle-right fa-fw"></i>
+    </button>
+
+    <dialog id="toc-popup" class="p-0">
+      <div class="header d-flex flex-row align-items-center justify-content-between">
+        <div class="label text-truncate py-2 ms-4">{{- page.title -}}</div>
+        <button id="toc-popup-close" type="button" class="btn-close btn-sm mx-3" aria-label="Close"></button>
+      </div>
+      <div id="toc-popup-content" class="px-4 py-3 pb-4"></div>
+    </dialog>
+  {% endif %}
+
+  <div class="content">
+    {{ content }}
+  </div>
+
+  <div class="post-tail-wrapper text-muted">
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+      <!-- categories -->
+      {% if page.categories.size > 0 %}
+        <div class="post-meta">
+          <i class="far fa-folder-open fa-fw me-1"></i>
+          {% for category in page.categories %}
+            <a href="{{ site.baseurl }}/categories/{{ category | slugify | url_encode }}/">{{ category }}</a>
+            {%- unless forloop.last -%},{%- endunless -%}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- "Edit this post" link -->
+      {% include post-edit.html lang=lang %}
+    </div>
+
+    <!-- tags -->
+    {% if page.tags.size > 0 %}
+      <div class="post-tags">
+        <i class="fa fa-tags fa-fw me-1"></i>
+        {% for tag in page.tags %}
+          <a
+            href="{{ site.baseurl }}/tags/{{ tag | slugify | url_encode }}/"
+            class="post-tag no-text-decoration"
+          >
+            {{- tag -}}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div
+      class="
+        post-tail-bottom
+        d-flex justify-content-between align-items-center mt-5 pb-2
+      "
+    >
+      <div class="license-wrapper">
+        {% if site.data.locales[lang].copyright.license.template %}
+          {% capture _replacement %}
+        <a href="{{ site.data.locales[lang].copyright.license.link }}">
+          {{ site.data.locales[lang].copyright.license.name }}
+        </a>
+        {% endcapture %}
+
+          {{ site.data.locales[lang].copyright.license.template | replace: ':LICENSE_NAME', _replacement }}
+        {% endif %}
+      </div>
+
+      {% include post-sharing.html lang=lang %}
+    </div>
+    <!-- .post-tail-bottom -->
+  </div>
+  <!-- div.post-tail-wrapper -->
+</article>
