@@ -640,6 +640,42 @@ input:focus-visible,
   margin-bottom: 0.85rem;
 }
 
+/* 최근 업데이트 목록에 01·02·03 번호를 붙인다.
+   에코 화면 우측의 번호 레일과 같은 문법이다. 템플릿을 고칠 필요 없이
+   CSS 카운터로 만든다.
+
+   ⚠ Chirpy 는 이 <li> 에 .text-truncate(white-space:nowrap + ellipsis)를 준다.
+   li 를 flex 로 바꾸면 그 말줄임이 죽으므로, 말줄임 책임을 안쪽 <a> 로 옮긴다. */
+#access-lastmod ul {
+  counter-reset: wuwa-recent;
+}
+
+#access-lastmod ul li {
+  counter-increment: wuwa-recent;
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--wuwa-line-soft);
+}
+
+#access-lastmod ul li::before {
+  content: counter(wuwa-recent, decimal-leading-zero);
+  flex: none;
+  font-family: var(--wuwa-font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--wuwa-accent);
+  opacity: 0.7;
+}
+
+#access-lastmod ul li > a {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 #sidebar .site-subtitle {
   font-size: 88%;
   letter-spacing: 0.02em;
@@ -663,9 +699,32 @@ input:focus-visible,
 /* 활성/hover 표시는 가상요소 대신 inset box-shadow 로 그린다.
    Chirpy 가 이미 쓰는 가상요소와 충돌하지 않고, 움직임이 없어
    "동작 줄이기" 설정에서 따로 꺼 줄 것도 없다. */
+/* 에코 화면의 좌측 아이콘 레일처럼 — 아이콘을 키우고 라벨은 줄여
+   세로로 일정한 리듬을 만든다. 아이콘이 먼저 읽히고 글자가 따라온다.
+   활성 항목에서만 아이콘이 금색이 되어 "지금 여기"를 알린다. */
 #sidebar ul li.nav-item a.nav-link {
   border-radius: 0 var(--wuwa-cut-sm) 0 var(--wuwa-cut-sm);
+  padding-top: 0.72rem;
+  padding-bottom: 0.72rem;
   transition: box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+#sidebar ul li.nav-item a.nav-link i {
+  font-size: 1.05rem;
+  opacity: 1;
+  margin-right: 1.15rem;
+  color: var(--wuwa-muted);
+  transition: color 0.25s ease;
+}
+
+#sidebar ul li.nav-item a.nav-link:hover i,
+#sidebar ul li.nav-item.active a.nav-link i {
+  color: var(--wuwa-accent);
+}
+
+#sidebar ul li.nav-item a.nav-link span {
+  font-size: 82%;
+  letter-spacing: 0.1em;
 }
 
 #sidebar ul li.nav-item a.nav-link:hover {
@@ -709,58 +768,68 @@ search {
 }
 
 
-/* ---- 10) 게시글 목록 ------------------------------------------------
+/* ---- 10) 게시글 목록 — "에코 목록" 행 --------------------------------
+   레퍼런스: 공명자 선택 / 에코 화면.
+     · 타일 왼쪽 바깥에 흐린 인덱스 번호(01 02 03 …)가 세로로 늘어선다
+     · 선택된 타일은 코너 장식이 아니라 "전체를 감싸는 밝은 프레임"을 받는다
+     · 타일 아래쪽에 정보 스트립이 있고 값(Lv.20)이 오른쪽 끝에 붙는다
+
+   그래서 이전 버전의 ㄱ자 코너 브래킷을 걷어내고 그 두 가상요소를
+   인덱스 번호와 프레임에 다시 배정했다.
+
    대상 선택 근거 (Chirpy v7.6.0 _layouts/home.html):
      <article class="card-wrapper card">   ← 바깥 상자. _home.scss에서 background:none
-       <a class="post-preview row g-0">    ← 배경·그림자·둥근모서리를 가진 "진짜 카드"
-   그래서 배경/그림자/transform 은 .post-preview 에 건다.
+       <a class="post-preview row g-0">    ← 배경·그림자를 가진 "진짜 카드"
 
    가상요소 배분 (충돌 주의):
      .post-preview::before → Chirpy 가 hover 막으로 이미 쓴다. 건드리지 않는다.
-     .post-preview::after  → 비어 있다. 좌측 공명 바로 쓴다.
-     .card-wrapper ::before/::after → 비어 있다. 모서리 브래킷으로 쓴다.
+     .post-preview::after  → 선택 프레임
+     .card-wrapper::before → 인덱스 번호
+     .card-wrapper::after  → 비워 둔다
 
    목록은 1열 세로 나열을 유지한다. 2열 그리드는 전에 해 봤다가 되돌렸다.
 ------------------------------------------------------------------ */
 
+#post-list {
+  /* 인덱스 번호를 CSS 카운터로 센다. 템플릿을 고칠 필요가 없다. */
+  counter-reset: wuwa-post;
+}
+
 #post-list .card-wrapper {
-  /* 브래킷을 절대배치하기 위한 기준. 등장 애니메이션의 transform 과 무관하다. */
   position: relative;
+  counter-increment: wuwa-post;
+
+  /* 번호가 들어갈 자리를 카드 왼쪽 바깥에 만든다 */
+  padding-left: 3.4rem;
 }
 
-/* 모서리 브래킷 — 게임 UI의 ㄱ자 코너 마크.
-   corner-shape 를 지원하지 않는 브라우저에서도 이건 그대로 보이므로,
-   "명조처럼 보이는" 몫을 실제로 떠받치는 건 이쪽이다. */
-#post-list .card-wrapper::before,
-#post-list .card-wrapper::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  z-index: 2;
-  pointer-events: none;
-  border: 0 solid var(--wuwa-accent);
-  opacity: 0.5;
-
-  /* 카드가 hover 때 -3px 떠오르므로 브래킷도 같이 올라가야 한다.
-     안 그러면 브래킷만 제자리에 남아 카드와 어긋나 보인다. */
-  transform: translateY(0);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-/* border-radius 를 0 으로 둔 두 모서리(좌상·우하)에 맞춘다 */
+/* 흐린 인덱스 번호. 게임에서도 읽으라고 있는 게 아니라 리듬을 만드는 장치라
+   대비를 낮게 둔다(장식이므로 AA 대상이 아니다). */
 #post-list .card-wrapper::before {
-  top: -1px;
-  left: -1px;
-  border-top-width: 2px;
-  border-left-width: 2px;
+  content: counter(wuwa-post, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.9rem;
+  width: 3.4rem;
+  text-align: center;
+  font-family: var(--wuwa-font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  color: var(--wuwa-muted);
+  opacity: 0.3;
+  transition: color 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
 }
 
-#post-list .card-wrapper::after {
-  right: -1px;
-  bottom: -1px;
-  border-right-width: 2px;
-  border-bottom-width: 2px;
+/* 좁은 화면에서는 번호 자리를 없앤다. 본문 폭이 더 중요하다. */
+@media (max-width: 849px) {
+  #post-list .card-wrapper {
+    padding-left: 0;
+  }
+
+  #post-list .card-wrapper::before {
+    display: none;
+  }
 }
 
 #post-list .post-preview {
@@ -770,20 +839,48 @@ search {
 
   /* 시작 상태를 명시. 없으면 마우스를 뗄 때 부자연스럽다. */
   transform: translateY(0);
-  overflow: hidden; /* 공명 바가 깎인 모서리 밖으로 새지 않게 */
 }
 
-/* 좌측 공명 바 — hover 하면 위에서 아래로 차오른다 */
+/* 선택 프레임 — 레퍼런스에서 선택된 공명자 타일을 감싸는 그 테두리.
+   모따기(corner-shape)를 따라가야 하므로 카드와 같은 radius 를 준다. */
 #post-list .post-preview::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 2px;
-  height: 0;
-  background: var(--wuwa-accent);
-  box-shadow: 0 0 10px var(--wuwa-accent-35);
-  transition: height 0.35s ease;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  transition: border-color 0.25s ease;
+}
+
+@supports (corner-shape: bevel) {
+  #post-list .post-preview::after {
+    corner-shape: bevel;
+  }
+}
+
+/* 하단 정보 스트립 — 값이 오른쪽 끝에 붙는 그 줄.
+   .post-meta 안의 내용은 <div class="me-auto"> 하나에 다 들어 있어서
+   좌우로 쪼갤 수는 없다. 대신 줄 전체를 오른쪽으로 보내고 위에 선을 긋는다.
+   (.me-auto = margin-right:auto 라 이걸 풀지 않으면 왼쪽에 붙어 있는다) */
+#post-list .post-meta {
+  border-top: 1px solid var(--wuwa-line);
+  padding-top: 0.6rem;
+  margin-top: 0.4rem;
+  justify-content: flex-end;
+}
+
+/* ⚠ 여기서 !important 가 필요하다. 저 안쪽 div 에는 Bootstrap 유틸리티
+   .me-auto 가 붙어 있고, Bootstrap 유틸리티는 설계상 전부 !important 다
+   (margin-right: auto !important). 특이도로는 이길 수 없다. */
+#post-list .post-meta > div:first-child {
+  margin-right: 0 !important;
+  flex: none;
+}
+
+#post-list .post-meta .categories {
+  letter-spacing: 0.08em;
 }
 
 /* 마우스가 있는 기기에서만. 터치 기기는 hover 가 눌러붙어 안 풀린다.
@@ -798,22 +895,21 @@ search {
       box-shadow 0.25s ease;
   }
 
+  /* 선택된 타일은 살짝 떠오르고, 그림자보다 "프레임"으로 선택을 알린다.
+     게임에서도 발광이 아니라 또렷한 테두리가 선택 신호다. */
   #post-list .card-wrapper:hover .post-preview {
-    transform: translateY(-3px);
-    box-shadow:
-      0 10px 26px rgb(0 0 0 / 60%),
-      0 0 0 1px var(--wuwa-accent-35),
-      0 0 22px rgb(200 169 114 / 16%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgb(0 0 0 / 60%);
   }
 
   #post-list .card-wrapper:hover .post-preview::after {
-    height: 100%;
+    border-color: var(--wuwa-accent);
   }
 
-  #post-list .card-wrapper:hover::before,
-  #post-list .card-wrapper:hover::after {
+  /* 인덱스 번호도 같이 깨어난다 — 지금 몇 번째를 보고 있는지가 드러난다 */
+  #post-list .card-wrapper:hover::before {
+    color: var(--wuwa-accent);
     opacity: 1;
-    transform: translateY(-3px);
   }
 }
 
@@ -826,7 +922,7 @@ search {
 
 /* 키보드 포커스에서도 같은 신호를 준다 (마우스가 없는 사용자) */
 #post-list .post-preview:focus-visible::after {
-  height: 100%;
+  border-color: var(--wuwa-accent);
 }
 
 /* ---- 카드 등장: 아주 약한 fade-up ---------------------------------
@@ -930,6 +1026,21 @@ search {
   font-family: var(--wuwa-font-display);
   letter-spacing: 0.04em;
   color: var(--wuwa-text-hi);
+}
+
+/* 표를 에코 화면의 스탯 목록처럼 — 배경 줄무늬가 아니라 행마다 얇은 선으로
+   나눈다. 게임 UI가 정확히 그 방식이다(HP / ATK / DEF 행).
+   첫 칸은 라벨이므로 값보다 한 단 낮춰 라벨↔값 위계를 만든다. */
+.content table tbody tr {
+  border-bottom: 1px solid var(--wuwa-line-soft);
+}
+
+.content table tbody tr:hover {
+  background-color: var(--wuwa-accent-08);
+}
+
+.content table tbody td:first-child {
+  color: var(--wuwa-muted-hi);
 }
 
 
@@ -1073,13 +1184,21 @@ blockquote.prompt-danger {
   box-shadow: inset 2px 0 0 var(--wuwa-accent);
 }
 
+/* 하단 조작 힌트 버튼 문법 — 얇은 테두리 + 반투명 채움 + 넓은 자간.
+   게임 화면 아래쪽의 Switch / Auto Equip 버튼이 이 모양이다.
+   채워진 버튼이 아니라 "테두리만 있는 버튼"이라는 게 핵심이다. */
+.pagination .page-link,
 #back-to-top {
   border: 1px solid var(--wuwa-line);
-  transition: box-shadow 0.25s ease;
+  background-color: var(--wuwa-surface);
+  letter-spacing: 0.08em;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
+.pagination .page-item:not(.active) .page-link:hover,
 #back-to-top:hover {
-  box-shadow: 0 0 16px rgb(200 169 114 / 30%);
+  border-color: var(--wuwa-accent-35);
+  background-color: var(--wuwa-accent-08);
 }
 
 footer {
@@ -1098,8 +1217,8 @@ footer {
    그리고 끄는 것은 "이동"뿐이다. opacity/배경색 fade 는 화면이 움직이는 게
    아니므로 남겨 둔다 — reduced motion 의 취지에 더 맞다.
 
-   ⚠ transform: none 은 가상요소까지 내려가지 않는다. 카드의 공명 바처럼
-   가상요소에 건 움직임은 반드시 이름을 따로 적어야 한다.
+   ⚠ transform: none 은 가상요소까지 내려가지 않는다. 가상요소에 건 움직임은
+   반드시 이름을 따로 적어야 한다.
 
    아래 selector 는 위에서 쓴 것과 특이도가 같지만 파일에서 나중에 나오므로
    이긴다. → !important 불필요. 이 섹션이 항상 마지막이어야 하는 이유다.
@@ -1113,12 +1232,11 @@ footer {
   }
 
   /* hover 의 "떠오름"만 제거. 그림자와 배경 fade 는 그대로 둔다.
-     카드 모서리 브래킷은 가상요소라 부모의 transform: none 이 내려가지 않는다.
-     이름을 따로 적어야 하는 이유다. */
-  #post-list .card-wrapper::before,
-  #post-list .card-wrapper::after,
-  #post-list .card-wrapper:hover::before,
-  #post-list .card-wrapper:hover::after,
+
+     목록을 "에코 목록 행"으로 바꾸면서 선택 신호가 이동(공명 바가 차오름)에서
+     색 변화(프레임과 인덱스 번호가 금색이 됨)로 바뀌었다. 색 변화는 화면이
+     움직이는 게 아니므로 여기서 끌 대상이 아니다 — 그래서 이 블록이 이전보다
+     짧아졌다. 선택이 어느 카드인지는 그대로 전달된다. */
   #post-list .post-preview,
   #post-list .card-wrapper:hover .post-preview,
   #tags .tag,
@@ -1126,11 +1244,5 @@ footer {
   .post-tags .post-tag,
   .post-tags .post-tag:hover {
     transform: none;
-  }
-
-  /* 공명 바는 "차오르는" 대신 즉시 나타난다.
-     정보(어느 카드를 가리키는가)는 남기고 움직임만 없앤다. */
-  #post-list .post-preview::after {
-    transition: none;
   }
 }
