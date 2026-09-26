@@ -1,0 +1,55 @@
+---
+layout: page
+# The Archives of posts.
+---
+
+<!--
+  명조 "기록 로그" 형태의 아카이브.
+
+  Chirpy v7.6.0 의 _layouts/archives.html 을 덮어쓴 것이다.
+
+  원본과 달라진 점:
+  1. 연도 묶기를 group_by_exp 로 바꿨다.
+     원본은 "직전 글과 연도가 다르면 </ul> 을 문자열로 찍고 새 <ul> 을 연다"는
+     방식이라 태그 짝을 눈으로 맞추기 어렵다. 연도별 그룹을 먼저 만들면
+     중첩이 템플릿 모양 그대로 보이고, 연도별 글 수(year.size)도 공짜로 나온다.
+  2. 날짜를 서버에서 MM.DD 로 확정해 찍는다.
+     원본은 data-ts / data-df 속성을 달아 두고 JS(dayjs)가 나중에 다시 쓰게 했는데,
+     _config.yml 의 timezone: Asia/Seoul 로 Jekyll 이 이미 맞는 날짜를 내므로
+     JS 에 기댈 이유가 없다. JS 가 늦게 돌 때 날짜가 바뀌어 깜빡이는 것도 없어진다.
+  3. id 를 #archives 가 아니라 #wuwa-archives 로 잡았다.
+     Chirpy 는 #archives ul li::before 등으로 타임라인 점·세로선을 그리는데,
+     같은 id 를 쓰면 그 규칙이 새 마크업에 엉뚱하게 달라붙는다.
+-->
+
+{% assign years = site.posts | group_by_exp: 'post', "post.date | date: '%Y'" %}
+
+<div id="wuwa-archives" class="wuwa-log">
+  {% for year in years %}
+    <section class="wuwa-log__year" aria-labelledby="wuwa-year-{{ year.name }}">
+      <!-- 연도 헤더 — 게임 섹션 제목 문법: 큰 금색 수치 + 작은 라벨 + 길게 빠지는 선 -->
+      <header class="wuwa-log__head">
+        <h2 class="wuwa-log__yr" id="wuwa-year-{{ year.name }}">{{ year.name }}</h2>
+        <span class="wuwa-log__count">{{ year.size }} ENTRIES</span>
+      </header>
+
+      <ol class="wuwa-log__list">
+        {% for post in year.items %}
+          {% assign idx = forloop.index | prepend: '0' | slice: -2, 2 %}
+          <li>
+            <a class="wuwa-log__row" href="{{ post.url | relative_url }}">
+              <span class="wuwa-log__no" aria-hidden="true">{{ idx }}</span>
+              <time class="wuwa-log__date" datetime="{{ post.date | date_to_xmlschema }}">
+                {{- post.date | date: '%m.%d' -}}
+              </time>
+              <span class="wuwa-log__title">{{ post.title }}</span>
+              {% if post.categories.size > 0 %}
+                <span class="wuwa-log__cat">{{ post.categories | first }}</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endfor %}
+</div>
