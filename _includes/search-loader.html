@@ -1,0 +1,64 @@
+<!--
+  Jekyll Simple Search loader
+  See: <https://github.com/christian-fei/Simple-Jekyll-Search>
+
+  Chirpy v7.6.0 의 _includes/search-loader.html 을 덮어쓴 것이다.
+  검색 결과 한 건을 그리는 템플릿(result_elem)과 카테고리·태그 표기만 바꿨다.
+  검색 동작(입력창, JSON 경로, 라이브러리 설정)은 원본 그대로다.
+
+  명조 선택 목록 문법으로:
+    카드 전체가 하나의 링크 — 어디를 눌러도 글로 간다
+    위: 카테고리(금색 라벨) + 태그(얇은 테두리 칩)
+    가운데: 제목 / 아래: 본문 발췌 두 줄
+
+  ⚠ 아래 result_elem 은 script 안의 '...' 작은따옴표 JS 문자열에 그대로 꽂힌다.
+  템플릿 안에 작은따옴표를 하나라도 쓰면 문자열이 거기서 끊겨 검색 스크립트
+  전체가 문법 오류로 죽는다. 속성값은 반드시 큰따옴표로만 쓴다.
+-->
+
+{% capture result_elem %}
+  <article class="wuwa-hit">
+    <a class="wuwa-hit__link" href="{url}">
+      <div class="wuwa-hit__meta">{categories}{tags}</div>
+      <h2 class="wuwa-hit__title">{title}</h2>
+      <p class="wuwa-hit__excerpt">{content}</p>
+    </a>
+  </article>
+{% endcapture %}
+
+{% capture not_found %}<p class="wuwa-hit__empty">NO SIGNAL — {{ site.data.locales[include.lang].search.no_results }}</p>{% endcapture %}
+
+<script>
+  {% comment %} Note: dependent library will be loaded in `js-selector.html` {% endcomment %}
+  document.addEventListener('DOMContentLoaded', () => {
+    SimpleJekyllSearch({
+      searchInput: document.getElementById('search-input'),
+      resultsContainer: document.getElementById('search-results'),
+      json: '{{ '/assets/js/data/search.json' | relative_url }}',
+      searchResultTemplate: '{{ result_elem | strip_newlines }}',
+      noResultsText: '{{ not_found }}',
+      templateMiddleware: function(prop, value, template) {
+        // 카테고리: 아이콘 대신 금색 라벨 하나. 게임 UI 에서 항목 위에 붙는 분류 표기다.
+        if (prop === 'categories') {
+          if (value === '') {
+            return `${value}`;
+          } else {
+            return `<span class="wuwa-hit__cat">${value}</span>`;
+          }
+        }
+
+        // 태그: "css, scss" 로 한 줄에 붙어 오는 값을 칩 여러 개로 나눈다.
+        if (prop === 'tags') {
+          if (value === '') {
+            return `${value}`;
+          } else {
+            return value
+              .split(',')
+              .map((tag) => `<span class="wuwa-hit__tag">${tag.trim()}</span>`)
+              .join('');
+          }
+        }
+      }
+    });
+  });
+</script>

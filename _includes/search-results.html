@@ -1,0 +1,23 @@
+<!-- The Search results -->
+
+<!--
+  Chirpy v7.6.0 의 _includes/search-results.html 을 덮어쓴 것이다.
+  바뀐 곳은 #search-results 의 클래스 하나뿐이다.
+
+  원본은 d-flex flex-wrap justify-content-center 로 결과를 가운데 정렬한
+  2열로 깔고, Chirpy CSS 가 넓은 화면에서 카드를 45% 폭으로 잘라
+  마지막 홀수 카드에는 right: 24.3% 같은 보정까지 건다.
+  명조 쪽 목록 문법은 "한 줄씩 세로로 쌓이는 선택 목록"이라 그걸 걷어내고
+  .wuwa-hits 하나만 둔다. 배치는 CSS 15번 섹션이 맡는다.
+
+  id 는 바꾸지 않는다 — Chirpy 의 검색 JS 가 #search-results 로 결과를 꽂는다.
+-->
+
+<div id="search-result-wrapper" class="d-flex justify-content-center d-none">
+  <div class="col-11 content">
+    <div id="search-hints">
+      {% include_cached trending-tags.html lang=include.lang %}
+    </div>
+    <div id="search-results" class="wuwa-hits mt-3"></div>
+  </div>
+</div>

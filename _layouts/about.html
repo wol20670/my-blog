@@ -1,0 +1,85 @@
+---
+layout: default
+---
+
+<!--
+  명조 "공명자 상세" 화면 구조의 정보 탭.
+
+  Chirpy 의 _layouts/page.html 을 바탕으로 새로 만든 레이아웃이다
+  (page.html 자체는 다른 탭도 쓰므로 덮어쓰지 않았다).
+  _tabs/about.md 의 front matter 에 layout: about 한 줄만 추가해서 쓴다.
+
+  원칙: 작성자가 쓴 본문({{ content }})은 손대지 않는다.
+  바뀌는 건 액자뿐이다 —
+    왼쪽  프로필 카드 (아바타 · 이름 · 한 줄 소개 · 스탯)
+    오른쪽 본문      (마크다운 그대로. 모양은 CSS 가 입힌다)
+  게임에서 공명자를 고르면 왼쪽에 초상과 수치가, 오른쪽에 설명이 뜨는 그 배치다.
+-->
+
+{% include lang.html %}
+
+{% assign tab_key = page.title | downcase %}
+{% assign title = site.data.locales[lang].tabs[tab_key] | default: page.title %}
+
+{% assign first_post = site.posts | last %}
+
+<article class="px-1 wuwa-profile">
+  <h1 class="dynamic-title">{{ title }}</h1>
+
+  <div class="wuwa-profile__grid">
+    <!-- ── 왼쪽: 프로필 카드 ─────────────────────────────────── -->
+    <aside class="wuwa-profile__card" aria-label="Profile">
+      {% if site.avatar != empty and site.avatar %}
+        {%- capture avatar_url -%}
+          {% include media-url.html src=site.avatar %}
+        {%- endcapture -%}
+        <div class="wuwa-profile__avatar">
+          <img src="{{- avatar_url -}}" width="160" height="160" alt="{{ site.social.name }}">
+        </div>
+      {% endif %}
+
+      <p class="wuwa-profile__eyebrow">RESONATOR PROFILE</p>
+      <p class="wuwa-profile__name">{{ site.social.name | default: site.github.username }}</p>
+      <p class="wuwa-profile__tagline">{{ site.tagline }}</p>
+
+      <!-- 에코 스탯 목록 문법 — 라벨 금색 왼쪽, 값 오른쪽 -->
+      <dl class="wuwa-stats">
+        <div class="wuwa-stats__row">
+          <dt>ENTRIES</dt>
+          <dd>{{ site.posts.size }}</dd>
+        </div>
+        <div class="wuwa-stats__row">
+          <dt>CATEGORIES</dt>
+          <dd>{{ site.categories.size }}</dd>
+        </div>
+        <div class="wuwa-stats__row">
+          <dt>TAGS</dt>
+          <dd>{{ site.tags.size }}</dd>
+        </div>
+        {% if first_post %}
+          <div class="wuwa-stats__row">
+            <dt>SINCE</dt>
+            <dd>{{ first_post.date | date: '%Y.%m' }}</dd>
+          </div>
+        {% endif %}
+      </dl>
+
+      {% if site.github.username %}
+        <a
+          class="wuwa-panel__go"
+          href="https://github.com/{{ site.github.username }}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GITHUB
+          <i class="fas fa-angle-right fa-fw" aria-hidden="true"></i>
+        </a>
+      {% endif %}
+    </aside>
+
+    <!-- ── 오른쪽: 작성자가 쓴 본문 그대로 ────────────────────── -->
+    <div class="wuwa-profile__body content">
+      {{ content }}
+    </div>
+  </div>
+</article>
