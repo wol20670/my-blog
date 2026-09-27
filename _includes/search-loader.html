@@ -38,7 +38,11 @@
       searchResultTemplate: '{{ result_elem | strip_newlines }}',
       noResultsText: '{{ not_found }}',
       templateMiddleware: function(prop, value, template) {
-        // 카테고리: 아이콘 대신 금색 라벨 하나. 게임 UI 에서 항목 위에 붙는 분류 표기다.
+        /* 카테고리: 아이콘 대신 금색 라벨 하나. 게임 UI 에서 항목 위에 붙는 분류 표기다.
+           ⚠ 이 스크립트 안에서는 // 한 줄 주석을 절대 쓰지 않는다.
+           사이트가 compress_html 로 HTML 을 한 줄로 압축하기 때문에,
+           // 가 그 뒤의 코드 전체를 주석으로 삼켜 SyntaxError 가 난다.
+           (실제로 한 번 그렇게 검색이 통째로 죽었다) */
         if (prop === 'categories') {
           if (value === '') {
             return `${value}`;
@@ -47,7 +51,7 @@
           }
         }
 
-        // 태그: "css, scss" 로 한 줄에 붙어 오는 값을 칩 여러 개로 나눈다.
+        /* 태그: "css, scss" 로 한 줄에 붙어 오는 값을 칩 여러 개로 나눈다. */
         if (prop === 'tags') {
           if (value === '') {
             return `${value}`;
