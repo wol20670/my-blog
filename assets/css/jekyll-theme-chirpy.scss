@@ -84,6 +84,8 @@
   --wuwa-surface: rgb(255 255 255 / 3.5%);
   --wuwa-surface-2: rgb(255 255 255 / 7%);
   --wuwa-well: #050506;
+  /* 떠 있는 메뉴(드롭다운)의 바탕. 패널 막처럼 반투명이면 뒤의 글자가 비쳐 겹쳐 보인다 → 불투명 */
+  --wuwa-menu: #161617;
 
   /* 글자 — 차가운 회색이 아니라 따뜻한 뼈색 흰색이다.
      대비는 WCAG AA(4.5:1) 이상. muted 는 바탕 위 6.7:1. */
@@ -187,7 +189,7 @@
   );
 
   /* 드롭다운 */
-  --menu-bg: var(--wuwa-surface-2);
+  --menu-bg: var(--wuwa-menu);
   --menu-border-color: var(--wuwa-line);
   --menu-shadow-color: rgb(0 0 0 / 60%);
   --menu-active-color: var(--wuwa-accent);
@@ -323,6 +325,7 @@
   --wuwa-surface: rgb(255 255 255 / 45%);
   --wuwa-surface-2: rgb(255 255 255 / 72%);
   --wuwa-well: #dbe6ea;
+  --wuwa-menu: #f4f7f8;
 
   --wuwa-text: #14263a;
   --wuwa-text-hi: #0e1e30;
@@ -398,7 +401,7 @@
 }
 
 .dropdown-menu {
-  --bs-dropdown-bg: var(--wuwa-surface-2);
+  --bs-dropdown-bg: var(--wuwa-menu);
   --bs-dropdown-color: var(--wuwa-text);
   --bs-dropdown-border-color: var(--wuwa-line);
   --bs-dropdown-link-color: var(--wuwa-text);
@@ -772,8 +775,10 @@ input:focus-visible,
 
 /* 메뉴 목록 위 섹션 라벨.
    게임 UI의 라벨은 "금색 작은 글씨 + 그 아래 얇은 금색 선" 형태다.
-   선을 라벨 폭이 아니라 패널 폭으로 길게 빼는 것이 그쪽 문법이다. */
-#sidebar ul::before {
+   선을 라벨 폭이 아니라 패널 폭으로 길게 빼는 것이 그쪽 문법이다.
+   ⚠ 반드시 ul.nav 로 좁힌다. 그냥 #sidebar ul 이면 사이드바 하단의 테마 토글
+   드롭다운(<ul class="dropdown-menu">)에도 NAVIGATION 라벨이 붙는다. */
+#sidebar ul.nav::before {
   content: 'NAVIGATION';
   display: block;
   margin: 0 1.5rem 0.75rem;
@@ -824,7 +829,7 @@ input:focus-visible,
   box-shadow: inset 2px 0 0 var(--wuwa-accent), 0 0 14px rgb(var(--wuwa-accent-rgb) / 12%);
 }
 
-/* 토글이 사라진 자리 보정 */
+/* 하단 줄(테마 토글 + GitHub + RSS) 간격 */
 #sidebar .sidebar-bottom {
   gap: 0.6rem;
   justify-content: flex-start;

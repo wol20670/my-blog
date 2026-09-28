@@ -63,7 +63,7 @@
   <div class="sidebar-bottom d-flex flex-wrap align-items-center w-100">
     {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
       {%- comment -%}
-        명조 테마의 두 모드: 흑조(dark, 기본) / 라하이 로이(light, 설원).
+        두 모드: 다크 테마(흑조, 기본) / 라이트 테마(라하이 로이 설원). 라벨은 일반 명칭으로 쓴다.
         "시스템" 항목은 뺐다. metadata-hook.html 이 저장값이 없으면 dark 로 채우기 때문에
         시스템을 골라도 다음 페이지에서 흑조로 돌아가 버린다.
       {%- endcomment -%}
@@ -90,13 +90,13 @@
           <li>
             <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="dark">
               {{- icon_dark -}}
-              흑조
+              다크 테마
             </button>
           </li>
           <li>
             <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
               {{- icon_light -}}
-              라하이 로이
+              라이트 테마
             </button>
           </li>
         </ul>
