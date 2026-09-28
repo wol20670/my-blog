@@ -18,11 +18,14 @@
    저 두 줄을 지우면 사이트 CSS가 통째로 사라지므로 건드리지 않는다.
    ============================================================
 
-   테마: 명조(Wuthering Waves) — 흑조 전용.
-   _config.yml 의 theme_mode: dark 와 짝이다. 라이트 모드는 존재하지 않는다.
+   테마: 명조(Wuthering Waves) — 흑조(다크, 기본) + 라하이 로이(라이트, 설원).
+   _config.yml 의 theme_mode 는 비워 둔다. 첫 방문을 흑조로 고정하는 일은
+   _includes/metadata-hook.html 의 스크립트가 한다.
+   색은 1)과 2-L)의 토큰만 고친다. 컴포넌트 규칙은 두 모드가 같이 쓴다.
 
    ── 이 파일의 순서 (바꾸지 말 것) ──────────────────────────
-     1  색 토큰              --wuwa-* 정의
+     1  색 토큰              --wuwa-* 정의 (흑조)
+     2-L 라하이 로이          라이트 모드에서 1)·2)를 다시 정의
      2  Chirpy 변수 매핑      테마 변수를 토큰에 연결
      3  Bootstrap 지역 변수   :root 로는 닿지 않는 것들
      4  하드코딩 색 보정      변수를 안 쓰고 박혀 있는 색들
@@ -96,9 +99,15 @@
   --wuwa-accent: #c8a972;
   --wuwa-accent-hi: #e3c78b;
   --wuwa-accent-dim: #8a7448;
-  --wuwa-accent-08: rgb(200 169 114 / 8%);
-  --wuwa-accent-18: rgb(200 169 114 / 18%);
-  --wuwa-accent-35: rgb(200 169 114 / 35%);
+  /* 강조색의 RGB 채널만 따로 둔다. 반투명 강조(막·발광)는 전부
+     rgb(var(--wuwa-accent-rgb) / N%) 로 이 값에서 파생되므로,
+     라하이 로이 모드는 이 한 줄만 바꿔도 금빛 발광이 청색 발광으로 따라온다. */
+  --wuwa-accent-rgb: 200 169 114;
+  --wuwa-accent-08: rgb(var(--wuwa-accent-rgb) / 8%);
+  --wuwa-accent-18: rgb(var(--wuwa-accent-rgb) / 18%);
+  --wuwa-accent-35: rgb(var(--wuwa-accent-rgb) / 35%);
+  /* 강조색으로 채운 면 위의 글자 (활성 페이지 번호 등) */
+  --wuwa-on-accent: var(--wuwa-black);
   --wuwa-gold: var(--wuwa-accent);
   --wuwa-red: #e0503e;
   --wuwa-red-text: #f2705f;
@@ -107,7 +116,11 @@
      게임 UI가 정확히 이 두 단계로만 선을 쓴다. */
   --wuwa-line: rgb(232 228 220 / 13%);
   --wuwa-line-soft: rgb(232 228 220 / 7%);
-  --wuwa-line-gold: rgb(200 169 114 / 45%);
+  --wuwa-line-gold: rgb(var(--wuwa-accent-rgb) / 45%);
+
+  /* 화면 전체 연출(7번 섹션 body::before) — 위에서 내려오는 빛과 가장자리 비네팅 */
+  --wuwa-glow: rgb(var(--wuwa-accent-rgb) / 5%);
+  --wuwa-vignette: rgb(0 0 0 / 55%);
 
   /* 모따기 크기. 컴포넌트에서 이 값만 다시 정의하면 모양이 따라온다. */
   --wuwa-cut: 14px;
@@ -168,9 +181,9 @@
   --img-bg: radial-gradient(circle, #131313 0%, #070707 100%);
   --shimmer-bg: linear-gradient(
     90deg,
-    rgb(200 169 114 / 0%) 0%,
-    rgb(200 169 114 / 10%) 50%,
-    rgb(200 169 114 / 0%) 100%
+    rgb(var(--wuwa-accent-rgb) / 0%) 0%,
+    rgb(var(--wuwa-accent-rgb) / 10%) 50%,
+    rgb(var(--wuwa-accent-rgb) / 0%) 100%
   );
 
   /* 드롭다운 */
@@ -274,12 +287,88 @@
   --bs-emphasis-color: var(--wuwa-text-hi);
   --bs-heading-color: var(--wuwa-text-hi);
   --bs-link-color: var(--wuwa-accent);
-  --bs-link-hover-color: #e3c78b;
+  --bs-link-hover-color: var(--wuwa-accent-hi);
   --bs-border-color: var(--wuwa-line-soft);
   --bs-secondary-bg: #121212;
   --bs-tertiary-bg: #0c0c0d;
   --bs-body-font-family: var(--wuwa-font-body);
   --bs-font-sans-serif: var(--wuwa-font-body);
+}
+
+
+/* ---- 2-L) 라하이 로이 — 라이트 모드 ---------------------------------
+   흑조가 "터미널 화면의 중성 검정 + 금색"이라면, 라이트는 라하이 로이의
+   지상 설원이다. 레퍼런스(눈보라 속 폐허 스크린샷)를 픽셀로 재 보니
+   전부 한 줄의 청색 계열이었다.
+     p3  #0e1e30  가장 어두운 남색      → 글자
+     p15 #203a58  폭풍 그림자
+     p50 #5a839c  중간 폭풍 청색
+     p90 #c0d9db  밝은 안개             → 바탕 쪽
+     p98 #f3f5ed  빛이 새는 곳(유일하게 따뜻함) → 상단 빛 번짐
+   금색은 한 픽셀도 없었다. 그래서 이 모드의 강조는 금색이 아니라 폭풍 청색이다.
+   (흑조에서 시안을 뺀 이유는 "검정 위에 빛나는 쨍한 시안 = 사이버펑크"였다.
+    여기 청색은 채도가 낮은 먹빛이라 그 문제가 없다.)
+
+   선택자 특이도 (0,2,0) 으로 1)·2)와 동점이고 뒤에 있으므로 이긴다.
+   대비(바탕 #e6eef0 기준): 본문 15:1 이상, muted 5.1:1, 강조 6.2:1 — 모두 AA 이상.
+------------------------------------------------------------------ */
+
+:root[data-bs-theme='light'] {
+  color-scheme: light;
+
+  /* 바탕 — 순백이 아니라 차가운 안개. 패널은 흑조와 같은 원리로
+     "바탕 위에 얹은 막"인데, 여기선 흰 서리 막이라 불투명도가 높다. */
+  --wuwa-black: #d3dfe4;
+  --wuwa-bg: #e6eef0;
+  --wuwa-surface: rgb(255 255 255 / 45%);
+  --wuwa-surface-2: rgb(255 255 255 / 72%);
+  --wuwa-well: #dbe6ea;
+
+  --wuwa-text: #14263a;
+  --wuwa-text-hi: #0e1e30;
+  --wuwa-muted: #4a667d;
+  --wuwa-muted-hi: #33506a;
+
+  /* 강조 — 폭풍 청색. 밝은 바탕에서는 hover 가 "더 밝게"가 아니라 "더 짙게"다. */
+  --wuwa-accent: #2c5a7c;
+  --wuwa-accent-hi: #1b4262;
+  --wuwa-accent-dim: #7b9bb1;
+  --wuwa-accent-rgb: 44 90 124;
+  --wuwa-on-accent: #f3f5ed;
+  --wuwa-red: #b83a2a;
+  --wuwa-red-text: #a3301f;
+
+  --wuwa-line: rgb(14 30 48 / 14%);
+  --wuwa-line-soft: rgb(14 30 48 / 8%);
+
+  /* 위에서 새어 드는 흰 빛 + 가장자리에 몰려 있는 눈보라 청색 */
+  --wuwa-glow: rgb(243 245 237 / 90%);
+  --wuwa-vignette: rgb(32 58 88 / 16%);
+
+  /* ── 2)에서 흑조 값이 직접 박혀 있던 Chirpy 변수들 ── */
+  --mask-bg: rgb(14 30 48 / 45%);
+  --img-bg: radial-gradient(circle, #eef3f5 0%, #d3dfe4 100%);
+  --menu-shadow-color: rgb(14 30 48 / 16%);
+  --sidebar-bg: linear-gradient(180deg, #dbe6ea 0%, #cddbe1 100%);
+  --topbar-bg: rgb(230 238 240 / 72%);
+  --card-shadow: 0 4px 16px rgb(14 30 48 / 7%), 0 0 0 1px var(--wuwa-line);
+  --tb-odd-bg: #dce6ea;
+  --tb-even-bg: #e2eaed;
+
+  /* prompt 4종은 의미색을 유지한다. 경고는 강조색(여기선 청색)을 따라가면
+     정보와 구분이 안 되므로 호박색을 따로 준다. */
+  --prompt-tip-bg: rgb(31 122 92 / 10%);
+  --prompt-tip-icon-color: #1f7a5c;
+  --prompt-info-bg: rgb(44 90 124 / 10%);
+  --prompt-info-icon-color: #2c5a7c;
+  --prompt-warning-bg: rgb(160 110 20 / 12%);
+  --prompt-warning-icon-color: #8a5d0f;
+  --prompt-danger-bg: rgb(184 58 42 / 10%);
+
+  --highlight-lineno-color: #8197a8;
+  --clipboard-checked-color: #1f7a5c;
+  --bs-secondary-bg: #dce6ea;
+  --bs-tertiary-bg: #e2eaed;
 }
 
 
@@ -300,7 +389,7 @@
   --bs-pagination-focus-color: var(--wuwa-accent);
   --bs-pagination-focus-bg: var(--wuwa-accent-08);
   --bs-pagination-focus-box-shadow: 0 0 0 0.2rem var(--wuwa-accent-18);
-  --bs-pagination-active-color: var(--wuwa-black);
+  --bs-pagination-active-color: var(--wuwa-on-accent);
   --bs-pagination-active-bg: var(--wuwa-accent);
   --bs-pagination-active-border-color: var(--wuwa-accent);
   --bs-pagination-disabled-color: var(--wuwa-line-soft);
@@ -315,7 +404,7 @@
   --bs-dropdown-link-color: var(--wuwa-text);
   --bs-dropdown-link-hover-color: var(--wuwa-accent);
   --bs-dropdown-link-hover-bg: var(--wuwa-accent-08);
-  --bs-dropdown-link-active-color: var(--wuwa-black);
+  --bs-dropdown-link-active-color: var(--wuwa-on-accent);
   --bs-dropdown-link-active-bg: var(--wuwa-accent);
 }
 
@@ -323,9 +412,23 @@
   --bs-list-group-bg: transparent;
   --bs-list-group-color: var(--wuwa-text);
   --bs-list-group-border-color: var(--wuwa-line-soft);
-  --bs-list-group-active-color: var(--wuwa-black);
+  --bs-list-group-active-color: var(--wuwa-on-accent);
   --bs-list-group-active-bg: var(--wuwa-accent);
   --bs-list-group-active-border-color: var(--wuwa-accent);
+}
+
+/* PWA "새 콘텐츠가 있습니다 [업데이트]" 알림의 버튼. 부트스트랩 기본 파랑(#0d6efd)이
+   두 모드 모두에서 혼자 튄다. 강조색으로 채우고 글자는 --wuwa-on-accent. */
+.btn-primary {
+  --bs-btn-color: var(--wuwa-on-accent);
+  --bs-btn-bg: var(--wuwa-accent);
+  --bs-btn-border-color: var(--wuwa-accent);
+  --bs-btn-hover-color: var(--wuwa-on-accent);
+  --bs-btn-hover-bg: var(--wuwa-accent-hi);
+  --bs-btn-hover-border-color: var(--wuwa-accent-hi);
+  --bs-btn-active-color: var(--wuwa-on-accent);
+  --bs-btn-active-bg: var(--wuwa-accent-hi);
+  --bs-btn-active-border-color: var(--wuwa-accent-hi);
 }
 
 .card {
@@ -516,7 +619,7 @@ search {
    !important 없이는 못 이긴다. 원형을 깨고 육각형에 가까운 각진 형태로. */
 #sidebar #avatar.rounded-circle {
   border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut) !important;
-  box-shadow: var(--wuwa-accent) 0 0 0 2px, 0 0 18px rgb(200 169 114 / 25%);
+  box-shadow: var(--wuwa-accent) 0 0 0 2px, 0 0 18px rgb(var(--wuwa-accent-rgb) / 25%);
 }
 
 @supports (corner-shape: bevel) {
@@ -545,9 +648,9 @@ body::before {
   pointer-events: none;
   background-image:
     /* 상단에서 내려오는 아주 옅은 따뜻한 빛 */
-    radial-gradient(140% 60% at 50% -10%, rgb(200 169 114 / 5%) 0%, transparent 60%),
+    radial-gradient(140% 60% at 50% -10%, var(--wuwa-glow) 0%, transparent 60%),
     /* 가장자리 비네팅 — 중앙의 글을 향해 시선을 모은다 */
-    radial-gradient(120% 90% at 50% 45%, transparent 45%, rgb(0 0 0 / 55%) 100%);
+    radial-gradient(120% 90% at 50% 45%, transparent 45%, var(--wuwa-vignette) 100%);
 }
 
 ::selection {
@@ -718,7 +821,7 @@ input:focus-visible,
 }
 
 #sidebar ul li.nav-item.active a.nav-link {
-  box-shadow: inset 2px 0 0 var(--wuwa-accent), 0 0 14px rgb(200 169 114 / 12%);
+  box-shadow: inset 2px 0 0 var(--wuwa-accent), 0 0 14px rgb(var(--wuwa-accent-rgb) / 12%);
 }
 
 /* 토글이 사라진 자리 보정 */
@@ -1074,7 +1177,7 @@ search {
 /* 인용 — 왼쪽 금색 선 + 살짝 올라온 면 */
 .content blockquote {
   border-left: 2px solid var(--wuwa-accent-35);
-  background: rgb(200 169 114 / 4%);
+  background: rgb(var(--wuwa-accent-rgb) / 4%);
   padding: 0.6rem 1rem;
 }
 
@@ -1177,19 +1280,19 @@ blockquote[class^='prompt-'] {
 }
 
 blockquote.prompt-tip {
-  border-left-color: #3fd9a4;
+  border-left-color: var(--prompt-tip-icon-color);
 }
 
 blockquote.prompt-info {
-  border-left-color: #4fb4d8;
+  border-left-color: var(--prompt-info-icon-color);
 }
 
 blockquote.prompt-warning {
-  border-left-color: var(--wuwa-gold);
+  border-left-color: var(--prompt-warning-icon-color);
 }
 
 blockquote.prompt-danger {
-  border-left-color: var(--wuwa-red);
+  border-left-color: var(--prompt-danger-icon-color);
 }
 
 
@@ -1221,7 +1324,7 @@ blockquote.prompt-danger {
     /* transform 하나에 여러 함수를 나열하면 순서대로 적용된다.
        속성을 두 번 쓰면 나중 것이 앞 것을 덮어쓰므로 반드시 한 줄에 적는다. */
     transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 12px rgb(200 169 114 / 20%);
+    box-shadow: 0 0 12px rgb(var(--wuwa-accent-rgb) / 20%);
   }
 }
 
@@ -1229,7 +1332,7 @@ blockquote.prompt-danger {
 /* ---- 14) 페이지네이션 · TOC · 기타 ---------------------------------- */
 
 .pagination .page-item.active .page-link {
-  box-shadow: 0 0 14px rgb(200 169 114 / 30%);
+  box-shadow: 0 0 14px rgb(var(--wuwa-accent-rgb) / 30%);
 }
 
 /* TOC 활성 항목 — 사이드바와 같은 신호 체계(왼쪽 금색 막대)를 쓴다 */
@@ -1658,7 +1761,7 @@ a.wuwa-cell:focus-visible {
   overflow: hidden;
   border: 1px solid var(--wuwa-accent);
   border-radius: 0 var(--wuwa-cut) 0 var(--wuwa-cut);
-  box-shadow: 0 0 18px rgb(200 169 114 / 22%);
+  box-shadow: 0 0 18px rgb(var(--wuwa-accent-rgb) / 22%);
 }
 
 .wuwa-profile__avatar img {

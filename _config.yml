@@ -72,7 +72,10 @@ pageviews:
 #     light — Use the light color scheme
 #     dark — Use the dark color scheme
 #
-theme_mode: dark # [light | dark]  # 명조 테마 — 흑조 전용. 라이트 모드 없음
+# 명조 테마 — 흑조(다크)가 기본, 라하이 로이(라이트)는 사이드바 토글로 고른다.
+# 여기에 값을 넣으면 Chirpy 가 한쪽 색만 출력하고 토글을 지워 버리므로 비워 둔다.
+# "처음 방문은 흑조" 는 _includes/metadata-hook.html 의 스크립트가 맡는다.
+theme_mode: # [light | dark]
 
 # The CDN endpoint for media resources.
 # Notice that once it is assigned, the CDN url

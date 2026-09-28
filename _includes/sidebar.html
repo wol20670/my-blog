@@ -62,12 +62,13 @@
 
   <div class="sidebar-bottom d-flex flex-wrap align-items-center w-100">
     {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
-      {%- capture icon_system -%}
-        <i class="fa-solid fa-display" data-theme-mode="system"></i>
-      {%- endcapture -%}
-
+      {%- comment -%}
+        명조 테마의 두 모드: 흑조(dark, 기본) / 라하이 로이(light, 설원).
+        "시스템" 항목은 뺐다. metadata-hook.html 이 저장값이 없으면 dark 로 채우기 때문에
+        시스템을 골라도 다음 페이지에서 흑조로 돌아가 버린다.
+      {%- endcomment -%}
       {%- capture icon_light -%}
-        <i class="fa-regular fa-sun" data-theme-mode="light"></i>
+        <i class="fa-regular fa-snowflake" data-theme-mode="light"></i>
       {%- endcapture -%}
 
       {%- capture icon_dark -%}
@@ -84,25 +85,18 @@
         >
           {{- icon_light -}}
           {{- icon_dark -}}
-          {{- icon_system -}}
         </button>
         <ul class="dropdown-menu rounded-3 mb-1 p-1">
           <li>
-            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
-              {{- icon_light -}}
-              {{- site.data.locales[lang].theme.light -}}
-            </button>
-          </li>
-          <li>
             <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="dark">
               {{- icon_dark -}}
-              {{- site.data.locales[lang].theme.dark -}}
+              흑조
             </button>
           </li>
           <li>
-            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="system">
-              {{- icon_system -}}
-              {{- site.data.locales[lang].theme.system -}}
+            <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
+              {{- icon_light -}}
+              라하이 로이
             </button>
           </li>
         </ul>
