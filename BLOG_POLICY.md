@@ -8,7 +8,8 @@
 - 두 문서의 내용이 서로 다르게 읽힐 경우, **글 유형/category/tag 등 taxonomy에 관한 사항은 이
   문서가 `CLAUDE.md`보다 우선**한다. (예: `CLAUDE.md`의 STAR "Action 60% 이상"/"정량 지표 필수"
   같은 형식적 강제 조건은 이 블로그에서는 적용하지 않는다 — 아래 참고.)
-- `.claude/skills/*`는 이 정책과 `CLAUDE.md`를 실제 작업 절차로 적용하는 역할을 한다.
+- 전역 스킬 `~/.claude/skills/note`, `~/.claude/skills/post-lint`는 이 정책과 `CLAUDE.md`를 실제 작업
+  절차로 적용하는 역할을 한다. 어느 폴더에서 실행해도 이 저장소(`C:/my-blog`)를 기준으로 동작한다.
 
 ---
 
