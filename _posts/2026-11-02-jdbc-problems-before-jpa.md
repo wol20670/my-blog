@@ -2,9 +2,9 @@
 layout: post
 title: "JPA를 배우기 전에, JDBC로 직접 짜 보며 모은 네 가지 불편함"
 date: 2026-11-02 11:40:00 +0900
-description: "JPA 첫 수업은 JPA가 아니라 JDBC 코드로 시작했다. 메뉴를 조회하는 코드를 네 번 짜 보면서 반복되는 코드, SQL에 끌려다니는 개발, 객체와 테이블의 관계 차이, 같은 행인데 다른 객체가 되는 문제를 차례로 만났다. 네 문제가 사실 '객체를 개발자가 직접 new 한다'는 한 지점에서 나온다는 걸 정리하고, 같은 예제를 JPA로 바꿔 실행해 동일성이 트랜잭션(영속성 컨텍스트) 안에서만 보장된다는 것까지 확인한 기록."
+description: "JPA 첫 수업은 JPA가 아니라 JDBC 코드로 시작했다. 메뉴를 조회하는 코드를 네 번 짜 보면서 반복되는 코드, SQL에 끌려다니는 개발, 객체와 테이블의 관계 차이, 같은 행인데 다른 객체가 되는 문제를 차례로 만났다. 네 문제가 사실 '객체를 개발자가 직접 new 한다'는 한 지점에서 나온다는 걸 정리하고, 같은 예제를 JPA로 바꿔 1~3번이 어떻게 풀리는지 실행해 본 기록."
 categories: [Exploration]
-tags: [java, jdbc, jpa, orm, spring-boot, persistence-context]
+tags: [java, jdbc, jpa, orm, spring-boot]
 mermaid: true
 ---
 
@@ -194,7 +194,7 @@ flowchart LR
 
 ## JPA로 바꿔서 직접 확인해 보기
 
-바로 다음 섹션이 같은 예제를 JPA로 다시 짜는 내용이라, 위 기대가 실제로 맞는지 돌려 봤다.
+바로 다음 섹션이 같은 예제를 JPA로 다시 짜는 내용이라, 위 기대가 실제로 맞는지 돌려 봤다. 이 글에서는 1~3번까지만 다루고, 4번 동일성은 [다음 글]({{ site.baseurl }}/posts/jpa-persistence-context-dirty-checking/)에서 영속성 컨텍스트와 함께 따로 정리했다.
 
 ### 엔티티 하나로 매핑 선언하기
 
@@ -282,102 +282,6 @@ foundMenu = Menu(menuCode=1, menuName=열무김치라떼, menuPrice=4500, catego
 
 한 가지 짚고 갈 점이 있다. 카테고리가 필요 없는 1번 메뉴 조회(`findMenu`)에서도 **똑같이 JOIN SQL이 나갔다.** JPA 명세에서 `@ManyToOne`의 기본 fetch 전략이 `EAGER`(즉시 로딩)이기 때문이다. 지난 글에서 고민한 "그 객체를 언제 채울 것인가"를 JPA는 기본값으로 "**항상 같이**"라고 답하고 있는 셈이다. 그리고 JOIN 종류가 `inner join`이 아니라 `left join`인 건 `@ManyToOne`의 `optional` 기본값이 `true`라서, 카테고리가 없는 메뉴도 결과에서 빠지지 않게 하려는 것으로 보인다.
 
-### 4번: 같은 행은 정말 같은 객체가 될까
-
-동일성 예제는 메서드에 `@Transactional(readOnly = true)`가 붙어 있다.
-
-```java
-@Transactional(readOnly = true)
-public void compareSameMenu(int menuCode) {
-
-    System.out.println("======= 1번째 조회 =======");
-    Menu menu1 = manager.find(Menu.class, menuCode);
-    System.out.println("======= 2번째 조회 =======");
-    Menu menu2 = manager.find(Menu.class, menuCode);
-
-    System.out.println("menu1 == menu2 : " + (menu1 == menu2));
-
-    menu1.changeMenuName("테스트!");
-
-    System.out.println("menu1 = " + menu1.getMenuName());
-    System.out.println("menu2 = " + menu2.getMenuName());
-}
-```
-
-실행 결과 (SQL 본문은 위와 같아서 줄였다):
-
-```text
-======= 1번째 조회 =======
-Hibernate:
-    select ... from tbl_menu m1_0 left join tbl_category c1_0 ... where m1_0.menu_code=?
-======= 2번째 조회 =======
-menu1.hashCode() = 1266421561
-menu2.hashCode() = 1266421561
-menu1 == menu2 : true
-menu1의 이름 변경 후!
-menu1 = 테스트!
-menu2 = 테스트!
-```
-
-기대대로 `true`다. 그런데 결과보다 더 눈에 띈 건 **"2번째 조회" 아래에 SQL이 없다**는 점이었다. 두 번째 `find()`는 DB에 가지도 않고, 첫 번째 조회 때 영속성 컨텍스트에 올려 둔 그 객체를 그대로 돌려줬다. 같은 객체이니 `menu1`의 이름을 바꾸면 `menu2`에서도 바뀐 이름이 보인다. JDBC 때 "menu1을 수정해도 menu2는 모른다"던 문제가 애초에 생길 수 없는 구조가 된 것이다.
-
-### 트랜잭션을 빼면 다시 `false`가 된다
-
-여기서 궁금해졌다. 1번 메뉴(`findMenu`)를 연달아 두 번 실행했을 때는 **매번 SQL이 새로 나갔다.** 그 메서드엔 `@Transactional`이 없다.
-
-그래서 원본 코드는 건드리지 않고, 따로 작은 확인용 클래스를 만들어 **트랜잭션 없이** `find()`를 두 번 불러 봤다. (아래는 확인용으로 따로 작성한 코드다.)
-
-```java
-// 확인용 코드 — @Transactional 없음
-Menu a = em.find(Menu.class, 1);
-Menu b = em.find(Menu.class, 1);
-System.out.println("a == b : " + (a == b));
-```
-
-```text
-Hibernate: select m1_0.menu_code, ... where m1_0.menu_code=?
-Hibernate: select m1_0.menu_code, ... where m1_0.menu_code=?
-a == b : false
-```
-
-SQL이 두 번 나가고 결과도 `false`. JDBC 때와 똑같다.
-
-이유는 `@PersistenceContext`로 주입받은 `EntityManager`가 진짜 `EntityManager`가 아니라 Spring이 만든 **공유 프록시**라는 데 있다. Spring 문서(`SharedEntityManagerCreator`)에 따르면 이 프록시는 현재 트랜잭션에 묶인 `EntityManager`가 있으면 거기로 호출을 넘기고, **없으면 호출할 때마다 새 `EntityManager`를 만든다.** 영속성 컨텍스트도 매번 새로 생기니, 같은 객체를 돌려줄 근거가 없어지는 것이다.
-
-```mermaid
-sequenceDiagram
-    participant C as 내 코드
-    participant P as EntityManager<br/>(Spring 공유 프록시)
-    participant PC as 영속성 컨텍스트
-    participant DB as MySQL
-
-    Note over C,DB: @Transactional 안: 트랜잭션 동안 하나의 영속성 컨텍스트
-    C->>P: find(Menu, 1)
-    P->>PC: 1번 메뉴 있어?
-    PC->>DB: SELECT ... WHERE menu_code=1
-    DB-->>PC: 행
-    PC-->>C: Menu 객체 (A)
-    C->>P: find(Menu, 1)
-    P->>PC: 1번 메뉴 있어?
-    PC-->>C: 이미 있는 객체 A (SQL 없음)
-
-    Note over C,DB: @Transactional 밖: 호출마다 새 EntityManager
-    C->>P: find(Menu, 1)
-    P->>DB: SELECT (새 영속성 컨텍스트)
-    DB-->>C: Menu 객체 (B)
-    C->>P: find(Menu, 1)
-    P->>DB: SELECT (또 새 영속성 컨텍스트)
-    DB-->>C: Menu 객체 (C) — B와 다른 객체
-```
-
-정리하면 JPA가 보장하는 건 "같은 행이면 항상 같은 객체"가 아니라 **"같은 영속성 컨텍스트 안에서는 같은 객체"**다. Spring에서는 그 범위가 보통 트랜잭션과 같아서, `@Transactional`이 그 경계선 역할을 한다.
-
-### `readOnly = true`라서 DB는 그대로였다
-
-`menu1.changeMenuName("테스트!")`로 이름을 바꿨는데, 이 조회 뒤에 확인용 코드로 1번 메뉴를 다시 읽어 보니 DB의 이름은 여전히 `열무김치라떼`였다. `update` SQL도 로그에 없었다.
-
-Spring은 Hibernate를 쓸 때 `readOnly = true` 트랜잭션에서 flush를 하지 않도록 설정한다. 그래서 객체만 바뀌고 DB에는 반영되지 않았다. 거꾸로 말하면, `readOnly`가 아니었다면 `UPDATE` 문을 따로 쓰지 않았는데도 이 변경이 커밋 시점에 DB로 나갔을 수 있다는 뜻이다. 이건 다음 단원(영속성 컨텍스트)에서 직접 확인해 볼 생각이다.
-
 ### JDBC와 JPA 결과를 나란히 놓으면
 
 | 문제 | JDBC 결과 | JPA 결과 |
@@ -385,14 +289,13 @@ Spring은 Hibernate를 쓸 때 `readOnly = true` 트랜잭션에서 flush를 하
 | 1. 코드 반복 | 조회마다 자원 획득·매핑 코드 작성 | `manager.find()` 한 줄 |
 | 2. SQL 의존 | JOIN SQL + `MenuCategoryDTO` + 매핑 코드 추가 | 엔티티 연관관계만 보고 JOIN SQL 생성 |
 | 3. 패러다임 불일치 | 카테고리 조회 SQL을 한 번 더 실행 | `menu.getCategory()`로 탐색 (기본은 즉시 로딩) |
-| 4. 동일성 | `menu1 == menu2` → `false`, SQL 2번 | 트랜잭션 안: `true`, SQL 1번 / 트랜잭션 밖: `false`, SQL 2번 |
+| 4. 동일성 | `menu1 == menu2` → `false`, SQL 2번 | [다음 글]({{ site.baseurl }}/posts/jpa-persistence-context-dirty-checking/)에서 |
 
-4번 행의 "트랜잭션 밖" 칸이 이번 보충에서 가장 크게 배운 부분이다. JPA를 쓴다고 자동으로 해결되는 게 아니라, **영속성 컨텍스트의 범위 안에서만** 해결된다.
+1~3번은 결국 **매핑 정보를 엔티티에 한 번 선언해 두면, SQL과 변환은 JPA가 그 선언을 보고 만든다**는 한 가지로 풀렸다. 4번은 성격이 조금 다르다. 객체를 어떻게 만드느냐가 아니라 **누가 객체를 보관하고 있느냐**의 문제라서, 영속성 컨텍스트를 알아야 제대로 설명할 수 있었다.
 
 ## 더 알아보고 싶은 것
 
-- **영속성 컨텍스트(Persistence Context)와 1차 캐시** — 두 번째 `find()`에서 SQL이 안 나간 이유다. 트랜잭션 범위와 영속성 컨텍스트 범위가 어떻게 묶이는지(트랜잭션 범위 vs 확장 영속성 컨텍스트)까지 이어서 보고 싶다.
-- **변경 감지(Dirty Checking)와 flush** — `readOnly`를 빼면 `changeMenuName()`만으로 `UPDATE`가 나가는지. `UPDATE` SQL을 직접 안 쓰는 대신 "언제 DB에 반영되는지"를 알아야 한다.
+- **영속성 컨텍스트와 변경 감지** — 4번 동일성 문제의 답이다. [다음 글]({{ site.baseurl }}/posts/jpa-persistence-context-dirty-checking/)에서 이어서 정리했다.
 - **즉시 로딩(EAGER) vs 지연 로딩(LAZY)과 프록시** — 카테고리가 필요 없는 조회에서도 JOIN이 나간 이유다. `@ManyToOne(fetch = FetchType.LAZY)`로 바꾸면 SQL과 `getCategory()`의 동작이 어떻게 달라지는지 확인해 보고 싶다.
 - **N+1 문제** — 메뉴 목록을 JPQL로 조회할 때 연관된 카테고리 조회가 메뉴 개수만큼 반복될 수 있다. JPA가 번역을 맡아 준다고 SQL 비용까지 사라지는 건 아니다.
 - **Spring의 `JdbcTemplate`과 `RowMapper`** — 1번 반복 문제만 놓고 보면 JPA 말고도 해결책이 있다. JPA와 무엇이 다른지 비교해 보면 JPA가 해결하는 범위가 더 선명해질 것 같다.
@@ -405,6 +308,4 @@ Spring은 Hibernate를 쓸 때 `readOnly = true` 트랜잭션에서 flush를 하
 - [Spring Boot Reference - SQL Databases](https://docs.spring.io/spring-boot/reference/data/sql.html)
 - [Jakarta Persistence Specification](https://jakarta.ee/specifications/persistence/)
 - [Spring Framework Reference - JPA](https://docs.spring.io/spring-framework/reference/data-access/orm/jpa.html)
-- [Spring Framework API - SharedEntityManagerCreator](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/orm/jpa/SharedEntityManagerCreator.html)
-- [Spring Framework Reference - Using @Transactional](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
 - [Hibernate ORM User Guide - Fetching](https://docs.jboss.org/hibernate/orm/current/userguide/html_single/Hibernate_User_Guide.html#fetching)
