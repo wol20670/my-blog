@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Java처럼 읽으면 틀리는 JavaScript: 동적 타입, 호이스팅, 참조 복사"
-date: 2026-11-20 09:00:00 +0900
+date: 2026-11-20 08:30:00 +0900
 description: "Java를 먼저 배운 상태에서 JavaScript 핵심 문법(변수, 객체, 함수, 화살표 함수, 배열 고차 함수, 스프레드, 구조 분해 할당)을 실습했다. 문법은 금방 익숙해졌지만, 함수 표현식을 선언 전에 호출하자 ReferenceError가 났고, '깊은 복사'라고 적어둔 코드가 사실은 참조 복사였다. Java 감각으로 읽으면 틀리는 지점을 실행 결과와 함께 정리했다."
 categories: [Exploration]
 tags: [javascript, hoisting, higher-order-function, spread-syntax, destructuring]
