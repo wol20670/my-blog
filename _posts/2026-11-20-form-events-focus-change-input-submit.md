@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "폼 이벤트 4종 비교: focus와 focusin, change와 input, 그리고 return false가 통하는 경우"
-date: 2026-11-24 00:10:00 +0900
+date: 2026-11-20 08:50:00 +0900
 description: "DOM과 이벤트 핸들러를 배운 뒤 폼 이벤트를 실습했다. 분식집 주문서와 맛집 검색 폼으로 폼 요소 값 다루기, focus/blur와 focusin/focusout의 버블링 차이, change와 input의 발생 시점, submit 취소 방법을 정리했다. 실습 코드를 다시 읽으면서 글자 수 카운터의 초기값, 공백만 입력한 검색어처럼 놓친 지점도 함께 기록했다."
 categories: [Exploration]
 tags: [javascript, dom, form-event, event-bubbling]
