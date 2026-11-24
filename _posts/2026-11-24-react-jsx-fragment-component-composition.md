@@ -10,7 +10,7 @@ mermaid: true
 
 ## 들어가며
 
-지난 수업에서는 JSX 없이 `React.createElement`만으로 화면을 그렸다. 그때 결론은 "`createElement`는 DOM이 아니라 화면을 설명하는 **JS 객체**를 만든다"였다.
+[지난 글]({{ site.baseurl }}/posts/react-create-element-and-component/)에서는 JSX 없이 `React.createElement`만으로 화면을 그렸다. 그때 결론은 "`createElement`는 DOM이 아니라 화면을 설명하는 **JS 객체**를 만든다"였다.
 
 문제는 이걸 매번 손으로 쓰기엔 너무 번거롭다는 것이다. 그래서 이번 수업에서 **JSX**를 배웠다. 실습은 네 가지였다.
 
